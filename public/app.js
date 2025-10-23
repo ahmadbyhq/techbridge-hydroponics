@@ -26,31 +26,25 @@ const database = getDatabase(app);
 
 // last monitoring data
 let lastTemp = null;
-let lastGas = null;
 let lastLdr = null;
 let lastHum = null;
-let lastTds = null;
+// let lastTds = null;
 let lastTempWater = null;
 
 // Database references
-const temperatureRef = ref(database, "sensors/temperature");
-const humidityRef = ref(database, "sensors/humidity");
-const gasRef = ref(database, "sensors/gas");
-const ldrRef = ref(database, "sensors/ldr");
-const tempWaterRef = ref(database, "sensors/tempWater");
-const relayRef = ref(database, "relay/ldrLamp");
+const deviceId = "device_6C3B015C";
+const basePath = `devices/${deviceId}/sensors`;
+
+const temperatureRef = ref(database, `${basePath}/temperature`);
+const humidityRef = ref(database, `${basePath}/humidity`);
+const ldrRef = ref(database, `${basePath}/ldr`);
+const tempWaterRef = ref(database, `${basePath}/tempWater`);
 // const tdsRef = ref(database, "sensors/tds");
 
 // Helper function to update element safely
 function updateElement(id, value, suffix = "") {
     const el = document.getElementById(id);
     if (el) el.innerText = value + suffix;
-}
-
-function getGasCategory(gas_value) {
-    if (gas_value <= 1000) return "Normal";
-    else if (gas_value <= 2000) return "Warning";
-    else return "Danger";
 }
 
 function getLdrCategory(ldr_value) {
@@ -67,8 +61,10 @@ function getTempCategory(temp_value) {
 }
 
 function getTempWaterCategory(tempWater_value) {
-    if (tempWater_value < 20) return "Dingin";
+    if (tempWater_value < 15) return "Sangat Dingin";
+    else if (tempWater_value >= 15 && tempWater_value < 20) return "Dingin";
     else if (tempWater_value >= 20 && tempWater_value <= 27) return "Normal";
+    else if (tempWater_value > 27 && tempWater_value <= 30) return "Hangat";
     else return "Panas";
 }
 
@@ -197,9 +193,13 @@ onValue(tempWaterRef, (snapshot) => {
             "px-3 py-1 rounded-full text-sm font-medium " +
             (category === "Normal"
                 ? "bg-green-100 text-green-600"
+                : category === "Hangat"
+                ? "bg-yellow-100 text-yellow-600"
                 : category === "Panas"
                 ? "bg-red-100 text-red-600"
-                : "bg-blue-100 text-blue-600");
+                : category === "Dingin"
+                ? "bg-blue-100 text-blue-600"
+                : "bg-blue-200 text-blue-500");
     }
     // Hitung selisih
     if (lastTempWater !== null) {
@@ -230,53 +230,6 @@ onValue(tempWaterRef, (snapshot) => {
         }
     }
     lastTempWater = tempWater;
-});
-
-onValue(gasRef, (snapshot) => {
-    const gas = snapshot.val();
-    console.log("Gas:", gas);
-    updateElement("gas", gas, " ppm");
-
-    const category = getGasCategory(gas);
-    const statusEl = document.getElementById("gas-status");
-    if (statusEl) {
-        statusEl.innerText = category;
-        statusEl.className =
-            "px-3 py-1 rounded-full text-sm font-medium " +
-            (category === "Normal"
-                ? "bg-green-100 text-green-600"
-                : category === "Warning"
-                ? "bg-yellow-100 text-yellow-600"
-                : "bg-red-100 text-red-600");
-    }
-
-    // Hitung selisih
-    if (lastGas !== null) {
-        const diff = gas - lastGas;
-        const diffEl = document.getElementById("gas-diff");
-        if (diffEl) {
-            if (diff > 0) {
-                diffEl.className =
-                    "flex items-center gap-1 ml-2 text-green-600";
-                diffEl.innerHTML = `
-                    <ion-icon name="arrow-up-outline"></ion-icon>
-                    <span class="text-sm font-medium">+${diff} ppm</span>
-                `;
-            } else if (diff < 0) {
-                diffEl.className = "flex items-center gap-1 ml-2 text-red-600";
-                diffEl.innerHTML = `<ion-icon name="arrow-down-outline"></ion-icon>
-                    <span class="text-sm font-medium">${diff} ppm</span>
-                `;
-            } else {
-                diffEl.className = "flex items-center gap-1 ml-2 text-gray-600";
-                diffEl.innerHTML = `
-                    <ion-icon name="remove-outline"></ion-icon>
-                    <span class="text-sm font-medium">0 ppm</span>
-                `;
-            }
-        }
-    }
-    lastGas = gas;
 });
 
 onValue(ldrRef, (snapshot) => {
@@ -367,23 +320,3 @@ onValue(ldrRef, (snapshot) => {
 //     }
 //     lastTds = tds;
 // });
-
-onValue(relayRef, (snapshot) => {
-    const relayState = snapshot.val();
-    console.log("Relay State:", relayState);
-
-    const statusEl = document.getElementById("lamp-status");
-    if (statusEl) {
-        statusEl.innerText = relayState ? "ON" : "OFF";
-        statusEl.className =
-            "px-3 py-1 rounded-full text-sm font-medium " +
-            (relayState
-                ? "bg-green-100 text-green-600"
-                : "bg-red-100 text-red-600");
-    }
-    const lampEl = document.getElementById("lamp");
-    if (lampEl) {
-        lampEl.innerText = relayState ? "Nyala" : "Mati";
-        lampEl.className = "text-3xl font-bold ";
-    }
-});

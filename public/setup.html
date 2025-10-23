@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>TechBridge Hydroponic WiFi Setup</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: Roboto, Helvetica, Arial, sans-serif;
+                background-color: #f7f9fa;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0;
+                padding: 16px;
+            }
+
+            .card {
+                background-color: rgba(208, 217, 213, 0.9);
+                border: 1px solid #0a3622;
+                border-radius: 1rem;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                width: 100%;
+                max-width: 400px;
+                padding: 24px;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            }
+
+            .card h5 {
+                text-align: center;
+                color: #0a3622;
+                font-size: 1.3rem;
+                margin-top: 0;
+                margin-bottom: 1rem;
+            }
+
+            form {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            label {
+                font-weight: 500;
+                font-size: small;
+                margin-bottom: 6px;
+                display: inline-block;
+                color: #0a3622;
+            }
+
+            input[type="text"],
+            input[type="password"] {
+                width: 100%;
+                padding: 8px 10px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                font-size: 1rem;
+                outline: none;
+                transition: border-color 0.2s ease;
+            }
+
+            input[type="text"]:focus,
+            input[type="password"]:focus {
+                border-color: #0a3622;
+            }
+
+            button {
+                background-color: #0a3622;
+                color: white;
+                font-size: small;
+                font-weight: 500;
+                padding: 10px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: background-color 0.25s ease;
+            }
+
+            button:hover {
+                background-color: #09532e;
+            }
+
+            @media (max-width: 480px) {
+                .card {
+                    padding: 20px;
+                }
+
+                button {
+                    font-size: 0.95rem;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="card">
+            <h5>TechBridge Hydroponic WiFi Setup</h5>
+            <form action="/save" method="post">
+                <div class="form-group">
+                    <label for="ssid">WiFi SSID</label>
+                    <input
+                        type="text"
+                        id="ssid"
+                        name="ssid"
+                        placeholder="Masukkan nama WiFi"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="pass">WiFi Password</label>
+                    <input
+                        type="password"
+                        id="pass"
+                        name="pass"
+                        placeholder="Masukkan kata sandi WiFi"
+                        required
+                    />
+                </div>
+
+                <button type="submit">Simpan</button>
+            </form>
+        </div>
+    </body>
+</html>
