@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Register | TechBridge</title>
+        <link href="./output.css" rel="stylesheet" />
+        <link rel="icon" type="image/png" href="./img/logo_techbridge.png" />
+    </head>
+
+    <body
+        class="flex items-center justify-center min-h-screen bg-white px-6 sm:px-0"
+    >
+        <div
+            class="bg-soft-green rounded-md border-[0.5px] border-slate-300 p-8 mx-auto shadow-md w-full max-w-md transition-transform transform duration-300 ease-out hover:-translate-y-2 hover:shadow-xl"
+        >
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">
+                Register
+            </h1>
+
+            <form class="space-y-3">
+                <div class="relative">
+                    <label
+                        for="name"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                        >Nama</label
+                    >
+                    <input
+                        type="teks"
+                        id="name"
+                        class="w-full rounded-md border bg-white border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
+                        placeholder="Masukkan Nama"
+                    />
+                    <ion-icon
+                        name="person-outline"
+                        class="absolute right-3 top-10 text-gray-500 text-lg"
+                    ></ion-icon>
+                </div>
+                <div class="relative">
+                    <label
+                        for="email"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                        >Email</label
+                    >
+                    <input
+                        type="email"
+                        id="email"
+                        class="w-full rounded-md border bg-white border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
+                        placeholder="Masukkan Email"
+                    />
+                    <ion-icon
+                        name="mail-outline"
+                        class="absolute right-3 top-10 text-gray-500 text-lg"
+                    ></ion-icon>
+                </div>
+                <div class="relative">
+                    <label
+                        for="password"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                        >Password</label
+                    >
+                    <input
+                        type="password"
+                        id="password"
+                        class="w-full rounded-md border bg-white border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
+                        placeholder="Masukkan password"
+                    />
+                    <button
+                        type="button"
+                        id="togglePassword"
+                        class="absolute right-3 top-10 text-gray-500 hover:text-dark-green focus:outline-none"
+                        aria-label="Hide Password"
+                        title="Hide Password"
+                    >
+                        <ion-icon
+                            name="eye-off-outline"
+                            id="toggleIcon"
+                            class="text-lg"
+                        ></ion-icon>
+                    </button>
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full mt-2 bg-dark-green/85 text-white py-2 rounded-md hover:bg-dark-green transition-colors"
+                >
+                    Masuk
+                </button>
+            </form>
+            <div>
+                <p class="text-center text-sm text-gray-600 mt-3">
+                    Sudah punya akun?
+                    <a
+                        href="login.html"
+                        class="text-dark-green font-medium hover:underline"
+                        >Masuk</a
+                    >
+                </p>
+            </div>
+        </div>
+
+        <script
+            type="module"
+            src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+        ></script>
+        <script
+            nomodule
+            src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+        ></script>
+        <script>
+            const passwordInput = document.getElementById("password");
+            const toggleButton = document.getElementById("togglePassword");
+            const toggleIcon = document.getElementById("toggleIcon");
+
+            toggleButton.addEventListener("click", () => {
+                const isHidden = passwordInput.type === "password";
+                passwordInput.type = isHidden ? "text" : "password";
+                toggleIcon.name = isHidden ? "eye-outline" : "eye-off-outline";
+                toggleButton.setAttribute(
+                    "aria-label",
+                    isHidden ? "Hide password" : "Show password"
+                );
+                toggleButton.setAttribute(
+                    "title",
+                    isHidden ? "Hide password" : "Show password"
+                );
+            });
+        </script>
+    </body>
+</html>

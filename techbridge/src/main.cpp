@@ -30,6 +30,9 @@
 #define DHTTYPE DHT11
 #define LDRPIN 34
 #define DS18B20_PIN 4
+#define LED_GREEN 23  
+#define LED_RED   16  
+#define LED_BLUE  17  
 
 // preparation dht 11
 DHT dht(DHTPIN, DHTTYPE);
@@ -327,7 +330,15 @@ void waitForTimeSync() {
 }
 
 
+void ledAllOff() {
+  digitalWrite(LED_GREEN, LOW);
+  digitalWrite(LED_RED, LOW);
+  digitalWrite(LED_BLUE, LOW);
+}
+
 void startSetupPortal() {
+  ledAllOff();
+  digitalWrite(LED_RED, HIGH); 
   WiFi.mode(WIFI_AP);
   WiFi.softAP(apSSID, apPASS);
   IPAddress IP = WiFi.softAPIP();
@@ -367,6 +378,16 @@ void sendWiFiInfoToFirebase() {
     
 }
 
+void blinkWiFiLED() {
+  static unsigned long prevMillis = 0;
+  static bool state = false;
+  unsigned long now = millis();
+  if (now - prevMillis >= 300) {  
+    prevMillis = now;
+    state = !state;
+    digitalWrite(LED_BLUE, state);
+  }
+}
 
 
 void setup(){
@@ -376,6 +397,12 @@ void setup(){
 
   // setup pin input & output
   pinMode(LDRPIN, INPUT);
+  pinMode(LED_GREEN, OUTPUT);
+  pinMode(LED_RED, OUTPUT);
+  pinMode(LED_BLUE, OUTPUT);
+
+  ledAllOff();
+  digitalWrite(LED_GREEN, HIGH);
 
   pref.begin("wifi", true);
   String ssid = pref.getString("ssid", "");
@@ -392,15 +419,20 @@ void setup(){
 
     unsigned long startAttemptTime = millis();
     while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
+      blinkWiFiLED();
       Serial.print(".");
       delay(500);
     }
 
     if (WiFi.status() != WL_CONNECTED) {
       Serial.println("\nFailed to connect → starting setup again...");
+      digitalWrite(LED_RED, HIGH);
+      delay(1000);
       startSetupPortal();
     } else {
       wifiConnected = true;
+      digitalWrite(LED_BLUE, HIGH);
+      digitalWrite(LED_RED, LOW);
       Serial.println("\nWiFi connected!");
       Serial.println(WiFi.localIP());
       deviceId = getDeviceID();
@@ -423,14 +455,17 @@ void setup(){
 
   unsigned long startFirebase = millis();
   while (!app.ready() && millis() - startFirebase < 10000) {
+    blinkWiFiLED();
     app.loop();
     delay(100);
   }
 
   if (WiFi.status() == WL_CONNECTED && app.ready()) {
     sendWiFiInfoToFirebase();
+    digitalWrite(LED_BLUE, HIGH); 
   } else {
     Serial.println("Firebase Belum Siap atau WiFi Tidak Terhubung");
+    digitalWrite(LED_RED, HIGH);
   }
 
 }
@@ -440,13 +475,16 @@ void loop(){
   app.loop();
 
   static bool wifiInfoSent = false;
-  if (app.ready() && WiFi.status() == WL_CONNECTED && !wifiInfoSent) {
+  if (app.ready() && WiFi.status() == WL_CONNECTED && !wifiInfoSent) {  
     sendWiFiInfoToFirebase();
     wifiInfoSent = true;
+    digitalWrite(LED_BLUE, HIGH);
   }
 
   if (WiFi.status() != WL_CONNECTED && wifiInfoSent) {
     wifiInfoSent = false;
+    digitalWrite(LED_BLUE, LOW);
+    digitalWrite(LED_RED, HIGH);
   }
   
   // Check if authentication is ready

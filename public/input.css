@@ -3,4 +3,8 @@
     --color-cyan-100: oklch(94.1% 0.04 196.176);
     --color-cyan-500: oklch(63.1% 0.169 200.659);
     --color-cyan-600: oklch(55.2% 0.188 202.769);
+    --color-stone-950: oklch(14.7% 0.004 49.25);
+    --color-soft-green: #f5fcf2;
+    --color-dark-green: #003c2a;
+    --color-glow-green: #d1fbbf;
 }
