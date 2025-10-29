@@ -7,275 +7,338 @@
         <link rel="icon" type="image/png" href="./img/logo_techbridge.png" />
         <title>Techbridge</title>
     </head>
-    <body class="bg-gray-100 min-h-screen flex flex-col items-center py-10">
-        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">
-            Monitoring Hidroponik IoT
-        </h1>
-
+    <body class="bg-gray-50 min-h-screen">
         <div
-            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-6xl px-4"
+            id="overlay"
+            class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden lg:hidden"
+        ></div>
+        <!-- Sidebar -->
+
+        <aside
+            id="sidebar"
+            class="fixed top-0 left-0 h-screen w-72 bg-dark-green text-white shadow-2xl z-50 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300"
         >
-            <!-- Suhu Lingkungan Card -->
-            <div
-                class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-            >
-                <div class="flex items-center gap-2">
-                    <div
-                        class="bg-cyan-100 p-3 rounded-full flex items-center justify-center"
-                    >
-                        <ion-icon
-                            name="thermometer-outline"
-                            class="text-cyan-600 text-xl"
-                        ></ion-icon>
-                    </div>
-                    <span
-                        id="temp-status"
-                        class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600"
-                    >
-                        Normal
-                    </span>
-                </div>
-                <h3 class="text-gray-700 font-semibold text-lg text-left">
-                    Suhu Lingkungan
-                </h3>
-                <div class="flex items-center justify-center">
-                    <span
-                        id="temperature"
-                        class="text-3xl font-bold text-gray-900"
-                        >--</span
-                    >
-                    <div
-                        id="temp-diff"
-                        class="flex items-center gap-1 ml-2 text-green-600"
-                    >
-                        <ion-icon name="arrow-up-outline"></ion-icon>
-                        <span class="text-sm font-medium">0 °C</span>
+            <!-- Header Sidebar -->
+            <div class="p-6 border-b border-white/10">
+                <div
+                    class="bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10"
+                >
+                    <div class="flex items-center justify-between">
+                        <!-- Left: logo + name -->
+                        <div class="flex items-center gap-3">
+                            <div class="rounded-lg">
+                                <img
+                                    src="./img/logo_techbridge.png"
+                                    alt="Logo TechBridge"
+                                    class="w-10 h-10 object-cover rounded-lg border border-white/20"
+                                />
+                            </div>
+                            <div>
+                                <h2 class="font-semibold text-sm leading-tight">
+                                    Adijatmo Eka
+                                </h2>
+                            </div>
+                        </div>
+                        <!-- Right: online indicator -->
+                        <span
+                            class="w-2.5 h-2.5 bg-lime-green rounded-full animate-pulse"
+                        ></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Suhu Air Card -->
-            <div
-                class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-            >
-                <!-- Row 1: Icon + Status -->
-                <div class="flex items-center gap-2">
+            <!-- Menu Navigation -->
+            <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+                <a
+                    href="#"
+                    class="group flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 text-lime-green font-medium text-sm transition-all duration-200 relative overflow-hidden"
+                >
                     <div
-                        class="bg-blue-100 p-3 rounded-full flex items-center justify-center"
-                    >
-                        <ion-icon
-                            name="water-outline"
-                            class="text-blue-600 text-xl"
-                        ></ion-icon>
-                    </div>
-                    <span
-                        id="temp-water-status"
-                        class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600"
-                    >
-                        Normal
-                    </span>
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-lime-green rounded-r"
+                    ></div>
+                    <ion-icon name="home" class="text-xl"></ion-icon>
+                    <span>Dashboard</span>
+                </a>
+
+                <a
+                    href="#"
+                    class="group flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 font-medium text-sm transition-all duration-200 relative overflow-hidden"
+                >
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-lime-green rounded-r scale-y-0 group-hover:scale-y-100 transition-transform duration-200"
+                    ></div>
+                    <ion-icon name="notifications" class="text-xl"></ion-icon>
+                    <span>Notifikasi</span>
+                </a>
+
+                <a
+                    href="#"
+                    class="group flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 font-medium text-sm transition-all duration-200 relative overflow-hidden"
+                >
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-lime-green rounded-r scale-y-0 group-hover:scale-y-100 transition-transform duration-200"
+                    ></div>
+                    <ion-icon name="settings" class="text-xl"></ion-icon>
+                    <span>Pengaturan</span>
+                </a>
+            </nav>
+
+            <!-- Footer Sidebar -->
+            <div class="border-t border-white/10 p-4">
+                <a
+                    href="#"
+                    class="group flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:text-red-400 hover:bg-red-500/10 font-medium text-sm transition-all duration-200"
+                >
+                    <ion-icon name="log-out-outline" class="text-xl"></ion-icon>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="lg:ml-72 p-6 sm:p-8 transition-all duration-300">
+            <!-- Header -->
+            <header
+                class="flex items-center justify-between mb-8 bg-white shadow-md rounded-xl p-4 mx-4 sticky top-4 z-30"
+            >
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-dark-green">
+                        Dashboard
+                    </h1>
                 </div>
 
-                <!-- Row 2: Judul -->
-                <h3 class="text-gray-700 font-semibold text-lg text-left">
-                    Suhu Air
-                </h3>
+                <!-- Hamburger (mobile only) -->
+                <button
+                    id="menu-btn"
+                    class="p-2 rounded-md hover:bg-gray-100 text-dark-green lg:hidden z-50"
+                    title="menu-icon"
+                >
+                    <ion-icon
+                        name="menu-outline"
+                        class="text-2xl leading-none align-middle"
+                    ></ion-icon>
+                </button>
+            </header>
 
-                <!-- Row 3: Value + Delta -->
-                <div class="flex items-center justify-center">
-                    <span
-                        id="temp-water"
-                        class="text-3xl font-bold text-gray-900"
-                        >--</span
-                    >
-                    <div
-                        id="temp-water-diff"
-                        class="flex items-center gap-1 ml-2 text-green-600"
-                    >
-                        <ion-icon name="arrow-up-outline"></ion-icon>
-                        <span class="text-sm font-medium">0 °C</span>
+            <!-- Example content (your cards) -->
+            <div
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-6xl px-4"
+            >
+                <!-- Suhu Lingkungan Card -->
+                <div
+                    class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+                >
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="bg-cyan-100 p-3 rounded-full flex items-center justify-center"
+                        >
+                            <ion-icon
+                                name="thermometer-outline"
+                                class="text-cyan-600 text-xl"
+                            ></ion-icon>
+                        </div>
+                        <span
+                            id="temp-status"
+                            class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600"
+                        >
+                            Normal
+                        </span>
+                    </div>
+                    <h3 class="text-gray-700 font-semibold text-lg text-left">
+                        Suhu Lingkungan
+                    </h3>
+                    <div class="flex items-center justify-center">
+                        <span
+                            id="temperature"
+                            class="text-3xl font-bold text-gray-900"
+                            >--</span
+                        >
+                        <div
+                            id="temp-diff"
+                            class="flex items-center gap-1 ml-2 text-green-600"
+                        >
+                            <ion-icon name="arrow-up-outline"></ion-icon>
+                            <span class="text-sm font-medium">0 °C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suhu Air Card -->
+                <div
+                    class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+                >
+                    <!-- Row 1: Icon + Status -->
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="bg-blue-100 p-3 rounded-full flex items-center justify-center"
+                        >
+                            <ion-icon
+                                name="water-outline"
+                                class="text-blue-600 text-xl"
+                            ></ion-icon>
+                        </div>
+                        <span
+                            id="temp-water-status"
+                            class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600"
+                        >
+                            Normal
+                        </span>
+                    </div>
+
+                    <!-- Row 2: Judul -->
+                    <h3 class="text-gray-700 font-semibold text-lg text-left">
+                        Suhu Air
+                    </h3>
+
+                    <!-- Row 3: Value + Delta -->
+                    <div class="flex items-center justify-center">
+                        <span
+                            id="temp-water"
+                            class="text-3xl font-bold text-gray-900"
+                            >--</span
+                        >
+                        <div
+                            id="temp-water-diff"
+                            class="flex items-center gap-1 ml-2 text-green-600"
+                        >
+                            <ion-icon name="arrow-up-outline"></ion-icon>
+                            <span class="text-sm font-medium">0 °C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kelembaban Card -->
+                <div
+                    class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+                >
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="bg-green-100 p-3 rounded-full flex items-center justify-center"
+                        >
+                            <ion-icon
+                                name="rainy-outline"
+                                class="text-green-600 text-xl"
+                            ></ion-icon>
+                        </div>
+                        <span
+                            id="humidity-status"
+                            class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600"
+                        >
+                            Normal
+                        </span>
+                    </div>
+                    <h3 class="text-gray-700 font-semibold text-lg text-left">
+                        Kelembaban
+                    </h3>
+                    <div class="flex items-center justify-center">
+                        <span
+                            id="humidity"
+                            class="text-3xl font-bold text-gray-900"
+                            >--</span
+                        >
+                        <div
+                            id="hum-diff"
+                            class="flex items-center gap-1 ml-2 text-green-600"
+                        >
+                            <ion-icon name="arrow-up-outline"></ion-icon>
+                            <span class="text-sm font-medium">0 %</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LDR Sensor Card -->
+                <div
+                    class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+                >
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="bg-yellow-100 p-3 rounded-full flex items-center justify-center"
+                        >
+                            <ion-icon
+                                name="sunny-outline"
+                                class="text-yellow-600 text-xl"
+                            ></ion-icon>
+                        </div>
+                        <span
+                            id="ldr-status"
+                            class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600"
+                        >
+                            Terang
+                        </span>
+                    </div>
+                    <h3 class="text-gray-700 font-semibold text-lg text-left">
+                        Intensitas Cahaya
+                    </h3>
+                    <div class="flex items-center justify-center">
+                        <span id="ldr" class="text-3xl font-bold text-gray-900"
+                            >--</span
+                        >
+                        <div
+                            id="ldr-diff"
+                            class="flex items-center gap-1 ml-2 text-green-600"
+                        >
+                            <ion-icon name="arrow-up-outline"></ion-icon>
+                            <span class="text-sm font-medium">0 lux</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TDS Sensor Card -->
+                <div
+                    class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+                >
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="bg-teal-100 p-3 rounded-full flex items-center justify-center"
+                        >
+                            <ion-icon
+                                name="flask-outline"
+                                class="text-teal-600 text-xl"
+                            ></ion-icon>
+                        </div>
+                        <span
+                            id="tds-status"
+                            class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600"
+                        >
+                            Normal
+                        </span>
+                    </div>
+                    <h3 class="text-gray-700 font-semibold text-lg text-left">
+                        Kandungan Nutrisi
+                    </h3>
+                    <div class="flex items-center justify-center">
+                        <span id="tds" class="text-3xl font-bold text-gray-900"
+                            >--</span
+                        >
+                        <div
+                            id="tds-diff"
+                            class="flex items-center gap-1 ml-2 text-green-600"
+                        >
+                            <ion-icon name="arrow-up-outline"></ion-icon>
+                            <span class="text-sm font-medium">0 ppm</span>
+                        </div>
                     </div>
                 </div>
             </div>
+        </main>
 
-            <!-- Kelembaban Card -->
-            <div
-                class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-            >
-                <div class="flex items-center gap-2">
-                    <div
-                        class="bg-green-100 p-3 rounded-full flex items-center justify-center"
-                    >
-                        <ion-icon
-                            name="rainy-outline"
-                            class="text-green-600 text-xl"
-                        ></ion-icon>
-                    </div>
-                    <span
-                        id="humidity-status"
-                        class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600"
-                    >
-                        Normal
-                    </span>
-                </div>
-                <h3 class="text-gray-700 font-semibold text-lg text-left">
-                    Kelembaban
-                </h3>
-                <div class="flex items-center justify-center">
-                    <span id="humidity" class="text-3xl font-bold text-gray-900"
-                        >--</span
-                    >
-                    <div
-                        id="hum-diff"
-                        class="flex items-center gap-1 ml-2 text-green-600"
-                    >
-                        <ion-icon name="arrow-up-outline"></ion-icon>
-                        <span class="text-sm font-medium">0 %</span>
-                    </div>
-                </div>
-            </div>
+        <!-- Scripts -->
+        <script>
+            const sidebar = document.getElementById("sidebar");
+            const menuBtn = document.getElementById("menu-btn");
+            const overlay = document.getElementById("overlay");
 
-            <!-- Gas Sensor Card -->
-            <!-- <div
-                class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-            >
-                <div class="flex items-center gap-2">
-                    <div
-                        class="bg-orange-100 p-3 rounded-full flex items-center justify-center"
-                    >
-                        <ion-icon
-                            name="flame-outline"
-                            class="text-orange-600 text-xl"
-                        ></ion-icon>
-                    </div>
-                    <span
-                        id="gas-status"
-                        class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600"
-                    >
-                        Normal
-                    </span>
-                </div>
-                <h3 class="text-gray-700 font-semibold text-lg text-left">
-                    Kondisi Udara (Gas)
-                </h3>
-                <div class="flex items-center justify-center">
-                    <span id="gas" class="text-3xl font-bold text-gray-900"
-                        >--</span
-                    >
-                    <div
-                        id="gas-diff"
-                        class="flex items-center gap-1 ml-2 text-green-600"
-                    >
-                        <ion-icon name="arrow-up-outline"></ion-icon>
-                        <span class="text-sm font-medium">0 ppm</span>
-                    </div>
-                </div>
-            </div> -->
+            // buka sidebar
+            menuBtn.addEventListener("click", () => {
+                sidebar.classList.toggle("-translate-x-full");
+                overlay.classList.toggle("hidden");
+            });
 
-            <!-- LDR Sensor Card -->
-            <div
-                class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-            >
-                <div class="flex items-center gap-2">
-                    <div
-                        class="bg-yellow-100 p-3 rounded-full flex items-center justify-center"
-                    >
-                        <ion-icon
-                            name="sunny-outline"
-                            class="text-yellow-600 text-xl"
-                        ></ion-icon>
-                    </div>
-                    <span
-                        id="ldr-status"
-                        class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600"
-                    >
-                        Terang
-                    </span>
-                </div>
-                <h3 class="text-gray-700 font-semibold text-lg text-left">
-                    Intensitas Cahaya
-                </h3>
-                <div class="flex items-center justify-center">
-                    <span id="ldr" class="text-3xl font-bold text-gray-900"
-                        >--</span
-                    >
-                    <div
-                        id="ldr-diff"
-                        class="flex items-center gap-1 ml-2 text-green-600"
-                    >
-                        <ion-icon name="arrow-up-outline"></ion-icon>
-                        <span class="text-sm font-medium">0 lux</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TDS Sensor Card -->
-            <div
-                class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-            >
-                <div class="flex items-center gap-2">
-                    <div
-                        class="bg-teal-100 p-3 rounded-full flex items-center justify-center"
-                    >
-                        <ion-icon
-                            name="flask-outline"
-                            class="text-teal-600 text-xl"
-                        ></ion-icon>
-                    </div>
-                    <span
-                        id="tds-status"
-                        class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600"
-                    >
-                        Normal
-                    </span>
-                </div>
-                <h3 class="text-gray-700 font-semibold text-lg text-left">
-                    Kandungan Nutrisi
-                </h3>
-                <div class="flex items-center justify-center">
-                    <span id="tds" class="text-3xl font-bold text-gray-900"
-                        >--</span
-                    >
-                    <div
-                        id="tds-diff"
-                        class="flex items-center gap-1 ml-2 text-green-600"
-                    >
-                        <ion-icon name="arrow-up-outline"></ion-icon>
-                        <span class="text-sm font-medium">0 ppm</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lampu Card -->
-            <!-- <div
-                class="bg-white shadow-md rounded-xl p-6 flex flex-col space-y-3 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-            >
-                <div class="flex items-center gap-2">
-                    <div
-                        class="bg-purple-100 p-3 rounded-full flex items-center justify-center"
-                    >
-                        <ion-icon
-                            name="bulb-outline"
-                            class="text-purple-600 text-xl"
-                        ></ion-icon>
-                    </div>
-                    <span
-                        id="lamp-status"
-                        class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600"
-                    >
-                        Status
-                    </span>
-                </div>
-                <h3 class="text-gray-700 font-semibold text-lg text-left">
-                    Lampu
-                </h3>
-                <div class="flex items-center justify-center">
-                    <span id="lamp" class="text-3xl font-bold text-gray-900"
-                        >--</span
-                    >
-                </div>
-            </div> -->
-        </div>
+            // klik area luar sidebar untuk menutup
+            overlay.addEventListener("click", () => {
+                sidebar.classList.add("-translate-x-full");
+                overlay.classList.add("hidden");
+            });
+        </script>
 
         <script type="module" src="./app.js"></script>
         <script

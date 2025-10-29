@@ -1,19 +1,22 @@
 {
-  "firestore": {
-    "database": "(default)",
-    "location": "asia-southeast1",
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "hosting": {
-    "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ]
-  },
-  "database": {
-    "rules": "database.rules.json"
-  }
+    "firestore": {
+        "database": "(default)",
+        "location": "asia-southeast1",
+        "rules": "firestore.rules",
+        "indexes": "firestore.indexes.json"
+    },
+    "hosting": {
+        "public": "public",
+        "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+        "redirects": [
+            {
+                "source": "/test.html",
+                "destination": "/404.html",
+                "type": 301
+            }
+        ]
+    },
+    "database": {
+        "rules": "database.rules.json"
+    }
 }
