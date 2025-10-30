@@ -34,6 +34,7 @@ let lastTempWater = null;
 // Database references
 const deviceId = "device_6C3B015C";
 const basePath = `devices/${deviceId}/sensors`;
+const infoRef = ref(database, `devices/${deviceId}/info`);
 
 const temperatureRef = ref(database, `${basePath}/temperature`);
 const humidityRef = ref(database, `${basePath}/humidity`);
@@ -320,3 +321,57 @@ onValue(ldrRef, (snapshot) => {
 //     }
 //     lastTds = tds;
 // });
+
+let latestInfo = null;
+
+onValue(infoRef, (snapshot) => {
+    latestInfo = snapshot.val();
+    if (!latestInfo) return;
+
+    console.log("INFO:", latestInfo);
+
+    updateElement("info-device_id", latestInfo.device_id);
+    updateElement("info-ssid", latestInfo.ssid);
+    updateElement("info-ip", latestInfo.ip);
+    updateElement("info-last_update", latestInfo.last_update);
+    updateElement("info-last_active", latestInfo.last_active);
+
+    // Cek status langsung setiap kali data berubah
+    checkDeviceStatus();
+});
+
+// Fungsi untuk cek status perangkat
+function checkDeviceStatus() {
+    if (!latestInfo) return;
+
+    const statusEl = document.getElementById("device-status");
+    const now = new Date();
+    const lastUpdate = new Date(
+        (latestInfo.last_update || "").replace(" ", "T")
+    );
+    const lastActive = new Date(
+        (latestInfo.last_active || "").replace(" ", "T")
+    );
+
+    const diffUpdate = Math.floor((now - lastUpdate) / (1000 * 60)); // menit
+    const diffActive = Math.floor((now - lastActive) / (1000 * 60)); // menit
+
+    // logika utama: update >5 menit berarti tidak aktif
+    if (isNaN(diffUpdate) || diffUpdate > 5) {
+        statusEl.className =
+            "mt-4 px-3 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 bg-red-100 text-red-700 border border-red-300";
+        statusEl.innerHTML =
+            '<ion-icon class="text-xl" name="alert-circle-outline"></ion-icon><span>Perangkat tidak aktif / belum tersambung Wi-Fi</span>';
+    } else {
+        statusEl.className =
+            "mt-4 px-3 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 bg-green-100 text-green-700 border border-green-300";
+        statusEl.innerHTML = `<ion-icon class="text-xl" name="checkmark-circle-outline"></ion-icon>
+            <span>Perangkat aktif (update ${diffUpdate} menit lalu)</span>`;
+    }
+
+    // opsional: tampilkan juga info kapan terakhir nyala
+    console.log(`Cek: last_active=${diffActive} menit lalu`);
+}
+
+// Jalankan pengecekan rutin tiap 1 menit
+setInterval(checkDeviceStatus, 10 * 1000);

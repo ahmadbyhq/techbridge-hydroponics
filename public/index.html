@@ -95,7 +95,9 @@
             </div>
         </aside>
 
-        <main class="lg:ml-72 p-6 sm:p-8 transition-all duration-300">
+        <main
+            class="lg:ml-72 p-6 sm:p-8 space-y-10 transition-all duration-300"
+        >
             <!-- Header -->
             <header
                 class="flex items-center justify-between mb-8 bg-white shadow-md rounded-xl p-4 mx-4 sticky top-4 z-30"
@@ -119,8 +121,9 @@
                 </button>
             </header>
 
-            <!-- Example content (your cards) -->
-            <div
+            <!-- content card -->
+            <section
+                id="sensor-cards"
                 class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-6xl px-4"
             >
                 <!-- Suhu Lingkungan Card -->
@@ -318,7 +321,114 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Informasi Sistem Card -->
+            <section
+                id="system_info"
+                class="bg-white shadow-md rounded-xl p-6 w-full max-w-6xl mx-auto"
+            >
+                <h2
+                    class="text-lg font-semibold text-dark-green flex items-center gap-2 mb-4"
+                >
+                    <ion-icon
+                        name="information-circle-outline"
+                        class="text-[24px]"
+                    ></ion-icon>
+                    Informasi Sistem
+                </h2>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-gray-700">
+                        <tbody id="device-info">
+                            <tr class="border-b border-gray-200">
+                                <td class="py-2 flex items-center gap-3">
+                                    <ion-icon
+                                        name="barcode-outline"
+                                        class="text-[24px] text-dark-green"
+                                    ></ion-icon>
+                                    ID Device
+                                </td>
+                                <td
+                                    class="py-2 text-right font-medium"
+                                    id="info-device_id"
+                                >
+                                    -
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-2 flex items-center gap-3">
+                                    <ion-icon
+                                        name="wifi-outline"
+                                        class="text-[24px] text-dark-green"
+                                    ></ion-icon>
+                                    Wi-fi Tersambung
+                                </td>
+                                <td
+                                    class="py-2 text-right font-medium"
+                                    id="info-ssid"
+                                >
+                                    -
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-2 flex items-center gap-3">
+                                    <ion-icon
+                                        name="globe-outline"
+                                        class="text-[24px] text-dark-green"
+                                    ></ion-icon>
+                                    IP Address
+                                </td>
+                                <td
+                                    class="py-2 text-right font-medium"
+                                    id="info-ip"
+                                >
+                                    -
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-2 flex items-center gap-3">
+                                    <ion-icon
+                                        name="time-outline"
+                                        class="text-[24px] text-dark-green"
+                                    ></ion-icon>
+                                    Waktu Terakhir Update
+                                </td>
+                                <td
+                                    class="py-2 text-right font-medium"
+                                    id="info-last_update"
+                                >
+                                    -
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 flex items-center gap-3">
+                                    <ion-icon
+                                        name="pulse-outline"
+                                        class="text-[24px] text-dark-green"
+                                    ></ion-icon>
+                                    Waktu Mulai Perangkat Aktif
+                                </td>
+                                <td
+                                    class="py-2 text-right font-medium"
+                                    id="info-last_active"
+                                >
+                                    -
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Status Perangkat -->
+                <div
+                    id="device-status"
+                    class="mt-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2"
+                >
+                    <ion-icon name="sync-outline"></ion-icon>
+                    <span>Memuat status perangkat...</span>
+                </div>
+            </section>
         </main>
 
         <!-- Scripts -->
