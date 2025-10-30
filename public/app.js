@@ -328,7 +328,7 @@ onValue(infoRef, (snapshot) => {
     latestInfo = snapshot.val();
     if (!latestInfo) return;
 
-    console.log("INFO:", latestInfo);
+    // console.log("INFO:", latestInfo);
 
     updateElement("info-device_id", latestInfo.device_id);
     updateElement("info-ssid", latestInfo.ssid);
@@ -336,7 +336,6 @@ onValue(infoRef, (snapshot) => {
     updateElement("info-last_update", latestInfo.last_update);
     updateElement("info-last_active", latestInfo.last_active);
 
-    // Cek status langsung setiap kali data berubah
     checkDeviceStatus();
 });
 
@@ -353,11 +352,11 @@ function checkDeviceStatus() {
         (latestInfo.last_active || "").replace(" ", "T")
     );
 
-    const diffUpdate = Math.floor((now - lastUpdate) / (1000 * 60)); // menit
-    const diffActive = Math.floor((now - lastActive) / (1000 * 60)); // menit
+    const diffUpdate = Math.floor((now - lastUpdate) / 1000);
+    const diffActive = Math.floor((now - lastActive) / 1000);
 
-    // logika utama: update >5 menit berarti tidak aktif
-    if (isNaN(diffUpdate) || diffUpdate > 5) {
+    // logika utama: update >1 menit berarti tidak aktif
+    if (isNaN(diffUpdate) || diffUpdate > 60) {
         statusEl.className =
             "mt-4 px-3 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 bg-red-100 text-red-700 border border-red-300";
         statusEl.innerHTML =
@@ -366,12 +365,12 @@ function checkDeviceStatus() {
         statusEl.className =
             "mt-4 px-3 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 bg-green-100 text-green-700 border border-green-300";
         statusEl.innerHTML = `<ion-icon class="text-xl" name="checkmark-circle-outline"></ion-icon>
-            <span>Perangkat aktif (update ${diffUpdate} menit lalu)</span>`;
+            <span>Perangkat aktif (update ${diffUpdate} detik lalu)</span>`;
     }
 
     // opsional: tampilkan juga info kapan terakhir nyala
-    console.log(`Cek: last_active=${diffActive} menit lalu`);
+    console.log(`Cek: last_active=${diffActive} detik lalu`);
 }
 
-// Jalankan pengecekan rutin tiap 1 menit
-setInterval(checkDeviceStatus, 10 * 1000);
+// Jalankan pengecekan rutin tiap 15 detik
+setInterval(checkDeviceStatus, 15 * 1000);
