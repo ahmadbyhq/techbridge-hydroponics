@@ -13,11 +13,6 @@
 #include <Preferences.h>
 #include <WebServer.h>
 #include <time.h>
-// #include <U8g2lib.h>
-
-// Network and Firebase credentials
-// #define WIFI_SSID "Galaxy M12 6475"
-// #define WIFI_PASSWORD "PentolKuah"
 
 #define Web_API_KEY "AIzaSyAujGS8fDmyVlIaFgHZd85bOYL8cMWOzI4"
 #define DATABASE_URL "https://techbridge-hydroponic-default-rtdb.asia-southeast1.firebasedatabase.app/"
@@ -30,16 +25,16 @@
 #define DHTTYPE DHT11
 #define LDRPIN 34
 #define DS18B20_PIN 4
+#define TDS 32
+#define VREF 3.3
+#define SCOUNT 30
 #define LED_GREEN 23  
 #define LED_RED   16  
-#define LED_BLUE  17  
+#define LED_BLUE  17
+#define SETUP_WIFI_BTN 27
 
 // preparation dht 11
 DHT dht(DHTPIN, DHTTYPE);
-
-// ldr threshold
-#define LDR_THRESHOLD 1500
-
 
 // User function
 void processData(AsyncResult &aResult);
@@ -62,6 +57,15 @@ const unsigned long ldrInterval = 5000;
 unsigned long lastLdrSend = 0;
 OneWire oneWire(DS18B20_PIN);
 DallasTemperature sensors(&oneWire);
+int analogBuffer[SCOUNT];
+int analogBufferTemp[SCOUNT];
+int analogBufferIndex = 0;
+float averageVoltage = 0;
+float tdsValue = 0;
+bool firebaseConnected = false;
+bool sensorError = false;
+unsigned long buttonPressTime = 0;
+bool buttonHeld = false;
 
 WebServer server(80);
 Preferences pref;
@@ -329,16 +333,35 @@ void waitForTimeSync() {
   Serial.println("\nSinkronisasi waktu gagal.");
 }
 
-
-void ledAllOff() {
-  digitalWrite(LED_GREEN, LOW);
-  digitalWrite(LED_RED, LOW);
-  digitalWrite(LED_BLUE, LOW);
+void ledSet(bool green, bool blue, bool red) {
+  digitalWrite(LED_GREEN, green);
+  digitalWrite(LED_BLUE, blue);
+  digitalWrite(LED_RED, red);
 }
 
+
+void blinkBlue() {
+  static unsigned long lastBlink = 0;
+  static bool state = false;
+  if (millis() - lastBlink > 500) {
+    lastBlink = millis();
+    state = !state;
+    digitalWrite(LED_BLUE, state);
+  }
+}
+
+void blinkRed() {
+  static unsigned long lastBlink = 0;
+  static bool state = false;
+  if (millis() - lastBlink > 500) {
+    lastBlink = millis();
+    state = !state;
+    digitalWrite(LED_RED, state);
+  }
+}
+
+
 void startSetupPortal() {
-  ledAllOff();
-  digitalWrite(LED_RED, HIGH); 
   WiFi.mode(WIFI_AP);
   WiFi.softAP(apSSID, apPASS);
   IPAddress IP = WiFi.softAPIP();
@@ -350,6 +373,7 @@ void startSetupPortal() {
   server.begin();
 
   Serial.println("Setup portal running...");
+  blinkRed();
   while (true) {
     server.handleClient(); 
     delay(10);
@@ -378,16 +402,66 @@ void sendWiFiInfoToFirebase() {
     
 }
 
-void blinkWiFiLED() {
-  static unsigned long prevMillis = 0;
-  static bool state = false;
-  unsigned long now = millis();
-  if (now - prevMillis >= 300) {  
-    prevMillis = now;
-    state = !state;
-    digitalWrite(LED_BLUE, state);
+// read TDS sensor
+int getMedianNum(int bArray[], int iFilterLen) {
+  int bTab[iFilterLen];
+  for (int i = 0; i < iFilterLen; i++) bTab[i] = bArray[i];
+  int i, j, bTemp;
+  for (j = 0; j < iFilterLen - 1; j++)
+    for (i = 0; i < iFilterLen - j - 1; i++)
+      if (bTab[i] > bTab[i + 1]) { bTemp = bTab[i]; bTab[i] = bTab[i + 1]; bTab[i + 1] = bTemp; }
+  return (iFilterLen & 1) ? bTab[(iFilterLen - 1) / 2] : (bTab[iFilterLen / 2] + bTab[iFilterLen / 2 - 1]) / 2;
+}
+
+float readTDS(float waterTemp) {
+  static unsigned long analogSampleTimepoint = millis();
+  if (millis() - analogSampleTimepoint > 40U) {
+    analogSampleTimepoint = millis();
+    analogBuffer[analogBufferIndex] = analogRead(TDS);
+    analogBufferIndex++;
+    if (analogBufferIndex == SCOUNT) analogBufferIndex = 0;
+  }
+
+  for (int i = 0; i < SCOUNT; i++) analogBufferTemp[i] = analogBuffer[i];
+  averageVoltage = getMedianNum(analogBufferTemp, SCOUNT) * VREF / 4096.0;
+  float compensationCoefficient = 1.0 + 0.02 * (waterTemp - 25.0);
+  float compensationVoltage = averageVoltage / compensationCoefficient;
+  tdsValue = (133.42 * pow(compensationVoltage, 3)
+            - 255.86 * pow(compensationVoltage, 2)
+            + 857.39 * compensationVoltage) * 0.5;
+  return tdsValue;
+}
+
+void checkSetupButton() {
+  if (digitalRead(SETUP_WIFI_BTN) == LOW) {
+    if (buttonPressTime == 0) {
+      buttonPressTime = millis();
+    }
+
+    if (millis() - buttonPressTime > 3000 && !buttonHeld) {
+      buttonHeld = true;
+      Serial.println("\nTombol setup WiFi ditekan selama 3 detik. Reset WiFi dan masuk mode setup...");
+      
+      ledSet(HIGH, HIGH, LOW);
+
+      pref.begin("wifi", false);
+      pref.clear();
+      pref.end();
+      delay(500);
+
+      ESP.restart();
+    }
+  } else {
+    buttonPressTime = 0;
+    buttonHeld = false;
   }
 }
+
+void updateLastActive() {
+  String path = "devices/" + deviceId + "/info/last_update";
+  Database.set<String>(aClient, path, getFormattedTime());
+}
+
 
 
 void setup(){
@@ -395,22 +469,24 @@ void setup(){
   sensors.begin();
   dht.begin();
 
+
   // setup pin input & output
   pinMode(LDRPIN, INPUT);
   pinMode(LED_GREEN, OUTPUT);
   pinMode(LED_RED, OUTPUT);
   pinMode(LED_BLUE, OUTPUT);
-
-  ledAllOff();
-  digitalWrite(LED_GREEN, HIGH);
+  pinMode(SETUP_WIFI_BTN, INPUT);
+  pinMode(TDS, INPUT);
 
   pref.begin("wifi", true);
   String ssid = pref.getString("ssid", "");
   String pass = pref.getString("pass", "");
   pref.end();
+  ledSet(HIGH, LOW, LOW);
 
   if (ssid == "") {
     Serial.println("Tidak ada WiFi tersimpan → start setup mode");
+    ledSet(HIGH, LOW, LOW);
     startSetupPortal();
   } else {
     WiFi.begin(ssid.c_str(), pass.c_str());
@@ -419,20 +495,19 @@ void setup(){
 
     unsigned long startAttemptTime = millis();
     while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
-      blinkWiFiLED();
+      blinkBlue();
       Serial.print(".");
       delay(500);
     }
 
     if (WiFi.status() != WL_CONNECTED) {
       Serial.println("\nFailed to connect → starting setup again...");
-      digitalWrite(LED_RED, HIGH);
+      ledSet(HIGH, LOW, HIGH);
       delay(1000);
       startSetupPortal();
     } else {
       wifiConnected = true;
-      digitalWrite(LED_BLUE, HIGH);
-      digitalWrite(LED_RED, LOW);
+      ledSet(HIGH, HIGH, LOW);
       Serial.println("\nWiFi connected!");
       Serial.println(WiFi.localIP());
       deviceId = getDeviceID();
@@ -455,17 +530,16 @@ void setup(){
 
   unsigned long startFirebase = millis();
   while (!app.ready() && millis() - startFirebase < 10000) {
-    blinkWiFiLED();
     app.loop();
     delay(100);
   }
 
   if (WiFi.status() == WL_CONNECTED && app.ready()) {
     sendWiFiInfoToFirebase();
-    digitalWrite(LED_BLUE, HIGH); 
+    ledSet(HIGH, HIGH, LOW);
   } else {
     Serial.println("Firebase Belum Siap atau WiFi Tidak Terhubung");
-    digitalWrite(LED_RED, HIGH);
+    ledSet(HIGH, LOW, HIGH);
   }
 
 }
@@ -474,24 +548,11 @@ void loop(){
   // Maintain authentication and async tasks
   app.loop();
 
-  static bool wifiInfoSent = false;
-  if (app.ready() && WiFi.status() == WL_CONNECTED && !wifiInfoSent) {  
-    sendWiFiInfoToFirebase();
-    wifiInfoSent = true;
-    digitalWrite(LED_BLUE, HIGH);
-  }
-
-  if (WiFi.status() != WL_CONNECTED && wifiInfoSent) {
-    wifiInfoSent = false;
-    digitalWrite(LED_BLUE, LOW);
-    digitalWrite(LED_RED, HIGH);
-  }
   
   // Check if authentication is ready
   if (app.ready()){ 
     // Periodic data sending every 10 seconds
     unsigned long currentTime = millis();
-    int ldrValue = analogRead(LDRPIN);
     if (currentTime - lastSendTime >= sendInterval){
       // Update the last send time
       lastSendTime = currentTime;
@@ -499,10 +560,13 @@ void loop(){
       sensors.requestTemperatures();
       // read sensor
       float temperature = dht.readTemperature();
+      int ldrValue = analogRead(LDRPIN);
       float humidity = dht.readHumidity();
       float tempWater = sensors.getTempCByIndex(0);
+      float tdsValue = readTDS(tempWater);
       
-      Serial.printf("Suhu Lingkungan: %.2f°C, Kelembaban: %.2f%%, Suhu Air: %.2f°C, Intensitas Cahaya: %d\n", temperature, humidity, tempWater, ldrValue);
+      
+      Serial.printf("Suhu Lingkungan: %.2f°C, Kelembaban: %.2f%%, Suhu Air: %.2f°C, Intensitas Cahaya: %d\n, TDS: %.0f ppm\n", temperature, humidity, tempWater, ldrValue, tdsValue);
 
       // send to database
       String basePath = "devices/" + deviceId + "/sensors";
@@ -511,15 +575,9 @@ void loop(){
       Database.set<float>(aClient, basePath + "/humidity", humidity, processData, "RTDB_Hum");
       Database.set<float>(aClient, basePath + "/tempWater", tempWater, processData, "RTDB_TempWater");
       Database.set<int>(aClient, basePath + "/ldr", ldrValue, processData, "RTDB_LDR");
+      Database.set<float>(aClient, basePath + "/tds", tdsValue, processData, "RTDB_TDS");
+      updateLastActive();
     }
-
-    const unsigned long activeUpdateInterval = 60000;
-    static unsigned long lastActiveUpdate = 0;
-
-    if (millis() - lastActiveUpdate > activeUpdateInterval) {
-      Database.set<String>(aClient, "devices/" + deviceId + "/info/last_update", getFormattedTime());
-      lastActiveUpdate = millis();
-    }    
   }
 }
 

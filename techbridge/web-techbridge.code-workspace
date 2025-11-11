@@ -1,0 +1,14 @@
+{
+    "folders": [
+		{
+			"path": ".."
+		},
+		{
+			"name": "techbridge",
+			"path": "."
+		}
+	],
+    "settings": {
+        "liveServer.settings.multiRootWorkspaceName": "web-techbridge"
+    }
+}
