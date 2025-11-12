@@ -87,7 +87,7 @@
             <div class="border-t border-white/10 p-4">
                 <a
                     href="#"
-                    class="group flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:text-red-400 hover:bg-red-500/10 font-medium text-sm transition-all duration-200"
+                    class="logout-btn group flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:text-red-400 hover:bg-red-500/10 font-medium text-sm transition-all duration-200"
                 >
                     <ion-icon name="log-out-outline" class="text-xl"></ion-icon>
                     <span>Logout</span>
@@ -431,8 +431,33 @@
             </section>
         </main>
 
-        <!-- Scripts -->
-        <script>
+        <script type="module" src="./app.js"></script>
+        <!-- <script type="module" src="./auth.js"></script> -->
+        <script
+            type="module"
+            src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+        ></script>
+        <script
+            nomodule
+            src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+        ></script>
+        <script type="module">
+            import { logoutUser } from "./auth.js";
+
+            // ambil elemen tombol logout
+            const logoutBtn = document.querySelector(".logout-btn");
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    // konfirmasi sebelum logout
+                    if (confirm("Yakin ingin logout?")) {
+                        logoutUser();
+                    }
+                });
+            }
+
+            // sidebar
             const sidebar = document.getElementById("sidebar");
             const menuBtn = document.getElementById("menu-btn");
             const overlay = document.getElementById("overlay");
@@ -449,15 +474,5 @@
                 overlay.classList.add("hidden");
             });
         </script>
-
-        <script type="module" src="./app.js"></script>
-        <script
-            type="module"
-            src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
-        ></script>
-        <script
-            nomodule
-            src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
-        ></script>
     </body>
 </html>
