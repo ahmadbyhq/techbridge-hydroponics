@@ -43,6 +43,8 @@
     --spacing: 0.25rem;
     --container-md: 28rem;
     --container-6xl: 72rem;
+    --text-xs: 0.75rem;
+    --text-xs--line-height: calc(1 / 0.75);
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
     --text-lg: 1.125rem;
@@ -266,11 +268,11 @@
   .z-50 {
     z-index: 50;
   }
-  .mx-4 {
-    margin-inline: calc(var(--spacing) * 4);
-  }
   .mx-auto {
     margin-inline: auto;
+  }
+  .mt-1 {
+    margin-top: calc(var(--spacing) * 1);
   }
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
@@ -366,12 +368,6 @@
   }
   .grid-cols-\[repeat\(auto-fit\,minmax\(250px\,1fr\)\)\] {
     grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
-  }
-  .grid-cols-\[repeat\(auto-fit\,minmax\(250px\,280px\)\)\] {
-    grid-template-columns: repeat(auto-fit,minmax(250px,280px));
-  }
-  .grid-cols-\[repeat\(auto-fit\,minmax\(250px\,327px\)\)\] {
-    grid-template-columns: repeat(auto-fit,minmax(250px,327px));
   }
   .flex-col {
     flex-direction: column;
@@ -629,6 +625,10 @@
     font-size: var(--text-xl);
     line-height: var(--tw-leading, var(--text-xl--line-height));
   }
+  .text-xs {
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+  }
   .text-\[24px\] {
     font-size: 24px;
   }
@@ -651,6 +651,9 @@
   .font-semibold {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
+  }
+  .whitespace-pre-line {
+    white-space: pre-line;
   }
   .text-blue-500 {
     color: var(--color-blue-500);
@@ -709,6 +712,9 @@
   .text-yellow-600 {
     color: var(--color-yellow-600);
   }
+  .opacity-0 {
+    opacity: 0%;
+  }
   .shadow-2xl {
     --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, rgb(0 0 0 / 0.25));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -741,6 +747,11 @@
   }
   .transition-colors {
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  .transition-opacity {
+    transition-property: opacity;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
