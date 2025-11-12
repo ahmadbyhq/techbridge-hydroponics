@@ -5,6 +5,7 @@ import {
     ref,
     onValue,
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -28,7 +29,7 @@ const database = getDatabase(app);
 let lastTemp = null;
 let lastLdr = null;
 let lastHum = null;
-// let lastTds = null;
+let lastTds = null;
 let lastTempWater = null;
 
 // Database references
@@ -40,7 +41,7 @@ const temperatureRef = ref(database, `${basePath}/temperature`);
 const humidityRef = ref(database, `${basePath}/humidity`);
 const ldrRef = ref(database, `${basePath}/ldr`);
 const tempWaterRef = ref(database, `${basePath}/tempWater`);
-// const tdsRef = ref(database, "sensors/tds");
+const tdsRef = ref(database, `${basePath}/tds`);
 
 // Helper function to update element safely
 function updateElement(id, value, suffix = "") {
@@ -75,11 +76,11 @@ function getHumCategory(hum_value) {
     else return "Tinggi";
 }
 
-// function getTDSCategory(tds_value) {
-//     if (tds_value < 600) return "Rendah";
-//     else if (tds_value >= 600 && tds_value <= 1200) return "Normal";
-//     else return "Tinggi";
-// }
+function getTDSCategory(tds_value) {
+    if (tds_value < 600) return "Rendah";
+    else if (tds_value >= 600 && tds_value <= 1000) return "Normal";
+    else return "Tinggi";
+}
 
 // Realtime listeners
 onValue(temperatureRef, (snapshot) => {
@@ -279,56 +280,55 @@ onValue(ldrRef, (snapshot) => {
     lastLdr = ldr;
 });
 
-// onValue(tdsRef, (snapshot) => {
-//     const tds = snapshot.val();
-//     console.log("TDS:", tds);
-//     updateElement("tds", tds, " ppm");
-//     const category = getTDSCategory(tds);
-//     const statusEl = document.getElementById("tds-status");
-//     if (statusEl) {
-//         statusEl.innerText = category;
-//         statusEl.className =
-//             "px-3 py-1 rounded-full text-sm font-medium " +
-//             (category === "Rendah" : ? "bg-blue-100 text-blue-600"
-//                 : category === "Normal"
-//                 ? "bg-green-100 text-green-600"
-//                 : "bg-red-100 text-red-600");
-//     }
+onValue(tdsRef, (snapshot) => {
+    const tds = snapshot.val();
+    console.log("TDS:", tds);
+    updateElement("tds", tds, " ppm");
+    const category = getTDSCategory(tds);
+    const statusEl = document.getElementById("tds-status");
+    if (statusEl) {
+        statusEl.innerText = category;
+        statusEl.className =
+            "px-3 py-1 rounded-full text-sm font-medium " +
+            (category === "Rendah"
+                ? "bg-blue-100 text-blue-600"
+                : category === "Normal"
+                ? "bg-green-100 text-green-600"
+                : "bg-red-100 text-red-600");
+    }
 
-//     // Hitung selisih
-//     if (lastTds !== null) {
-//         const diff = tds - lastTds;
-//         const diffEl = document.getElementById("tds-diff");
-//         if (diffEl) {
-//             if (diff > 0) {
-//                 diffEl.className =
-//                     "flex items-center gap-1 ml-2 text-green-600";
-//                 diffEl.innerHTML = `<ion-icon name="arrow-up-outline"></ion-icon>
-//                     <span class="text-sm font-medium">+${diff} ppm</span>
-//                 `;
-//             } else if (diff < 0) {
-//                 diffEl.className = "flex items-center gap-1 ml-2 text-red-600";
-//                 diffEl.innerHTML = `<ion-icon name="arrow-down-outline"></ion-icon>
-//                     <span class="text-sm font-medium">${diff} ppm</span>
-//                 `;
-//             } else {
-//                 diffEl.className = "flex items-center gap-1 ml-2 text-gray-600";
-//                 diffEl.innerHTML = `<ion-icon name="remove-outline"></ion-icon>
-//                     <span class="text-sm font-medium">0 ppm</span>
-//                 `;
-//             }
-//         }
-//     }
-//     lastTds = tds;
-// });
+    // Hitung selisih
+    if (lastTds !== null) {
+        const diff = tds - lastTds;
+        const diffEl = document.getElementById("tds-diff");
+        if (diffEl) {
+            if (diff > 0) {
+                diffEl.className =
+                    "flex items-center gap-1 ml-2 text-green-600";
+                diffEl.innerHTML = `<ion-icon name="arrow-up-outline"></ion-icon>
+                    <span class="text-sm font-medium">+${diff} ppm</span>
+                `;
+            } else if (diff < 0) {
+                diffEl.className = "flex items-center gap-1 ml-2 text-red-600";
+                diffEl.innerHTML = `<ion-icon name="arrow-down-outline"></ion-icon>
+                    <span class="text-sm font-medium">${diff} ppm</span>
+                `;
+            } else {
+                diffEl.className = "flex items-center gap-1 ml-2 text-gray-600";
+                diffEl.innerHTML = `<ion-icon name="remove-outline"></ion-icon>
+                    <span class="text-sm font-medium">0 ppm</span>
+                `;
+            }
+        }
+    }
+    lastTds = tds;
+});
 
 let latestInfo = null;
 
 onValue(infoRef, (snapshot) => {
     latestInfo = snapshot.val();
     if (!latestInfo) return;
-
-    // console.log("INFO:", latestInfo);
 
     updateElement("info-device_id", latestInfo.device_id);
     updateElement("info-ssid", latestInfo.ssid);
@@ -338,6 +338,8 @@ onValue(infoRef, (snapshot) => {
 
     checkDeviceStatus();
 });
+
+setInterval(checkDeviceStatus, 15000);
 
 // Fungsi untuk cek status perangkat
 function checkDeviceStatus() {
@@ -355,7 +357,7 @@ function checkDeviceStatus() {
     const diffUpdate = Math.floor((now - lastUpdate) / 1000);
     const diffActive = Math.floor((now - lastActive) / 1000);
 
-    // logika utama: update >1 menit berarti tidak aktif
+    // update >1 menit berarti tidak aktif
     if (isNaN(diffUpdate) || diffUpdate > 60) {
         statusEl.className =
             "mt-4 px-3 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 bg-red-100 text-red-700 border border-red-300";
@@ -371,9 +373,5 @@ function checkDeviceStatus() {
             <span>Perangkat aktif (update ${waktuUpdate})</span>`;
     }
 
-    // opsional: tampilkan juga info kapan terakhir nyala
     console.log(`Cek: last_active=${diffActive} detik lalu`);
 }
-
-// Jalankan pengecekan rutin tiap 15 detik
-setInterval(checkDeviceStatus, 15 * 1000);
