@@ -131,12 +131,11 @@ async function loginUser(email, password) {
         );
         const user = userCredential.user;
 
-        alert("Login Berhasil!");
         console.log("User logged in:", user.email);
         window.location.href = "index.html";
     } catch (error) {
-        console.error(error);
-        alert("Login gagal: " + error.message);
+        console.error("Firebase Auth Error:", error);
+        throw error;
     }
 }
 

@@ -27,7 +27,7 @@ const database = getDatabase(app);
 
 // last monitoring data
 let lastTemp = null;
-let lastLdr = null;
+let lastLux = null;
 let lastHum = null;
 let lastTds = null;
 let lastTempWater = null;
@@ -39,7 +39,7 @@ const infoRef = ref(database, `devices/${deviceId}/info`);
 
 const temperatureRef = ref(database, `${basePath}/temperature`);
 const humidityRef = ref(database, `${basePath}/humidity`);
-const ldrRef = ref(database, `${basePath}/ldr`);
+const luxRef = ref(database, `${basePath}/lux`);
 const tempWaterRef = ref(database, `${basePath}/tempWater`);
 const tdsRef = ref(database, `${basePath}/tds`);
 
@@ -49,10 +49,10 @@ function updateElement(id, value, suffix = "") {
     if (el) el.innerText = value + suffix;
 }
 
-function getLdrCategory(ldr_value) {
-    if (ldr_value < 1024) return "Gelap";
-    else if (ldr_value < 2048) return "Redup";
-    else if (ldr_value < 3072) return "Sedang";
+function getLuxCategory(lux_value) {
+    if (lux_value < 1024) return "Gelap";
+    else if (lux_value < 2048) return "Redup";
+    else if (lux_value < 3072) return "Sedang";
     else return "Terang";
 }
 
@@ -234,12 +234,12 @@ onValue(tempWaterRef, (snapshot) => {
     lastTempWater = tempWater;
 });
 
-onValue(ldrRef, (snapshot) => {
-    const ldr = snapshot.val();
-    console.log("LDR:", ldr);
-    updateElement("ldr", ldr, " lux");
-    const category = getLdrCategory(ldr);
-    const statusEl = document.getElementById("ldr-status");
+onValue(luxRef, (snapshot) => {
+    const lux = snapshot.val();
+    console.log("Lux:", lux);
+    updateElement("lux", lux, " lux");
+    const category = getLuxCategory(lux);
+    const statusEl = document.getElementById("lux-status");
     if (statusEl) {
         statusEl.innerText = category;
         statusEl.className =
@@ -254,9 +254,9 @@ onValue(ldrRef, (snapshot) => {
     }
 
     // Hitung selisih
-    if (lastLdr !== null) {
-        const diff = ldr - lastLdr;
-        const diffEl = document.getElementById("ldr-diff");
+    if (lastLux !== null) {
+        const diff = lux - lastLux;
+        const diffEl = document.getElementById("lux-diff");
         if (diffEl) {
             if (diff > 0) {
                 diffEl.className =
@@ -277,7 +277,7 @@ onValue(ldrRef, (snapshot) => {
             }
         }
     }
-    lastLdr = ldr;
+    lastLux = lux;
 });
 
 onValue(tdsRef, (snapshot) => {
