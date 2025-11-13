@@ -13,6 +13,7 @@
 #include <Preferences.h>
 #include <WebServer.h>
 #include <time.h>
+#include <BH1750.h>
 
 #define Web_API_KEY "AIzaSyAujGS8fDmyVlIaFgHZd85bOYL8cMWOzI4"
 #define DATABASE_URL "https://techbridge-hydroponic-default-rtdb.asia-southeast1.firebasedatabase.app/"
@@ -22,8 +23,7 @@
 
 // define pin and type sensor
 #define DHTPIN 18
-#define DHTTYPE DHT11
-#define LDRPIN 34
+#define DHTTYPE DHT22
 #define DS18B20_PIN 4
 #define TDS 32
 #define VREF 3.3
@@ -35,6 +35,9 @@
 
 // preparation dht 11
 DHT dht(DHTPIN, DHTTYPE);
+
+// preparation Light Sensor BH1750
+BH1750 lightMeter;
 
 // User function
 void processData(AsyncResult &aResult);
@@ -49,12 +52,9 @@ using AsyncClient = AsyncClientClass;
 AsyncClient aClient(ssl_client);
 RealtimeDatabase Database;
 
-// Timer variables for sending data every 10 seconds and ldr variable
+// Timer variables for sending data every 10 seconds 
 unsigned long lastSendTime = 0;
 const unsigned long sendInterval = 10000;
-int lastLdrValue = 0;
-const unsigned long ldrInterval = 5000; 
-unsigned long lastLdrSend = 0;
 OneWire oneWire(DS18B20_PIN);
 DallasTemperature sensors(&oneWire);
 int analogBuffer[SCOUNT];
@@ -466,12 +466,13 @@ void updateLastActive() {
 
 void setup(){
   Serial.begin(115200);
+  Wire.begin();
   sensors.begin();
   dht.begin();
+  lightMeter.begin();
 
 
   // setup pin input & output
-  pinMode(LDRPIN, INPUT);
   pinMode(LED_GREEN, OUTPUT);
   pinMode(LED_RED, OUTPUT);
   pinMode(LED_BLUE, OUTPUT);
@@ -560,13 +561,13 @@ void loop(){
       sensors.requestTemperatures();
       // read sensor
       float temperature = dht.readTemperature();
-      int ldrValue = analogRead(LDRPIN);
+      float lux = lightMeter.readLightLevel();
       float humidity = dht.readHumidity();
       float tempWater = sensors.getTempCByIndex(0);
       float tdsValue = readTDS(tempWater);
       
       
-      Serial.printf("Suhu Lingkungan: %.2f°C, Kelembaban: %.2f%%, Suhu Air: %.2f°C, Intensitas Cahaya: %d\n, TDS: %.0f ppm\n", temperature, humidity, tempWater, ldrValue, tdsValue);
+      Serial.printf("Suhu Lingkungan: %.2f°C, Kelembaban: %.2f%%, Suhu Air: %.2f°C, Intensitas Cahaya: %.2f\n, TDS: %.0f ppm\n", temperature, humidity, tempWater, lux, tdsValue);
 
       // send to database
       String basePath = "devices/" + deviceId + "/sensors";
@@ -574,7 +575,7 @@ void loop(){
       Database.set<float>(aClient, basePath + "/temperature", temperature, processData, "RTDB_Temp");
       Database.set<float>(aClient, basePath + "/humidity", humidity, processData, "RTDB_Hum");
       Database.set<float>(aClient, basePath + "/tempWater", tempWater, processData, "RTDB_TempWater");
-      Database.set<int>(aClient, basePath + "/ldr", ldrValue, processData, "RTDB_LDR");
+      Database.set<int>(aClient, basePath + "/lux", lux, processData, "RTDB_LUX");
       Database.set<float>(aClient, basePath + "/tds", tdsValue, processData, "RTDB_TDS");
       updateLastActive();
     }
