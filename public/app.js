@@ -302,16 +302,17 @@ onValue(tdsRef, (snapshot) => {
         const diff = tds - lastTds;
         const diffEl = document.getElementById("tds-diff");
         if (diffEl) {
+            const diffFormatted = diff.toFixed(1);
             if (diff > 0) {
                 diffEl.className =
                     "flex items-center gap-1 ml-2 text-green-600";
                 diffEl.innerHTML = `<ion-icon name="arrow-up-outline"></ion-icon>
-                    <span class="text-sm font-medium">+${diff} ppm</span>
+                    <span class="text-sm font-medium">+${diffFormatted} ppm</span>
                 `;
             } else if (diff < 0) {
                 diffEl.className = "flex items-center gap-1 ml-2 text-red-600";
                 diffEl.innerHTML = `<ion-icon name="arrow-down-outline"></ion-icon>
-                    <span class="text-sm font-medium">${diff} ppm</span>
+                    <span class="text-sm font-medium">${diffFormatted} ppm</span>
                 `;
             } else {
                 diffEl.className = "flex items-center gap-1 ml-2 text-gray-600";

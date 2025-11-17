@@ -13,6 +13,7 @@
 #include <Preferences.h>
 #include <WebServer.h>
 #include <time.h>
+#include <nvs_flash.h>
 #include <BH1750.h>
 
 #define Web_API_KEY "AIzaSyAujGS8fDmyVlIaFgHZd85bOYL8cMWOzI4"
@@ -28,9 +29,8 @@
 #define TDS 32
 #define VREF 3.3
 #define SCOUNT 30
-#define LED_GREEN 23  
-#define LED_RED   16  
-#define LED_BLUE  17
+#define LED_BLUE 23
+#define LED_RED  17
 #define SETUP_WIFI_BTN 27
 
 // preparation dht 11
@@ -333,27 +333,16 @@ void waitForTimeSync() {
   Serial.println("\nSinkronisasi waktu gagal.");
 }
 
-void ledSet(bool green, bool blue, bool red) {
-  digitalWrite(LED_GREEN, green);
+void ledSet(bool blue, bool red) {
   digitalWrite(LED_BLUE, blue);
   digitalWrite(LED_RED, red);
 }
 
 
-void blinkBlue() {
-  static unsigned long lastBlink = 0;
-  static bool state = false;
-  if (millis() - lastBlink > 500) {
-    lastBlink = millis();
-    state = !state;
-    digitalWrite(LED_BLUE, state);
-  }
-}
-
 void blinkRed() {
   static unsigned long lastBlink = 0;
   static bool state = false;
-  if (millis() - lastBlink > 500) {
+  if (millis() - lastBlink > 250) {
     lastBlink = millis();
     state = !state;
     digitalWrite(LED_RED, state);
@@ -433,22 +422,50 @@ float readTDS(float waterTemp) {
 }
 
 void checkSetupButton() {
-  if (digitalRead(SETUP_WIFI_BTN) == LOW) {
+  int btn = digitalRead(SETUP_WIFI_BTN);
+  if (btn == LOW) {
     if (buttonPressTime == 0) {
       buttonPressTime = millis();
+      ledSet(LOW, HIGH);
     }
 
-    if (millis() - buttonPressTime > 3000 && !buttonHeld) {
+    unsigned long held = millis() - buttonPressTime;
+
+    if (held > 10000 && !buttonHeld) {
       buttonHeld = true;
-      Serial.println("\nTombol setup WiFi ditekan selama 3 detik. Reset WiFi dan masuk mode setup...");
-      
-      ledSet(HIGH, HIGH, LOW);
+      Serial.println("Factory Reset.....");
 
-      pref.begin("wifi", false);
-      pref.clear();
-      pref.end();
+      for (int i = 0; i < 8; i++) {
+        ledSet(HIGH, LOW);
+        delay(150);
+        ledSet(LOW, HIGH);
+        delay(150);
+      }
+
+      nvs_flash_erase();
+      nvs_flash_init();
+
+      Serial.println("Selesai Factory Reset");
+      Serial.println("ESP32 Memulai Restart....");
       delay(500);
+      ESP.restart();
+    }
+    
+    if (held > 3000 && held < 10000 && !buttonHeld){
+      buttonHeld = true;
 
+      Serial.println("Reset WiFi....");
+      pref.begin("wifi", false);
+      bool reset_wifi = pref.clear();
+      pref.end();
+
+      if (reset_wifi) {
+        Serial.println("WiFi Berhasil direset");
+      } else {
+        Serial.println("WiFi Gagal direset");
+      }
+
+      delay(500);
       ESP.restart();
     }
   } else {
@@ -473,9 +490,8 @@ void setup(){
 
 
   // setup pin input & output
-  pinMode(LED_GREEN, OUTPUT);
-  pinMode(LED_RED, OUTPUT);
   pinMode(LED_BLUE, OUTPUT);
+  pinMode(LED_RED, OUTPUT);
   pinMode(SETUP_WIFI_BTN, INPUT);
   pinMode(TDS, INPUT);
 
@@ -483,11 +499,11 @@ void setup(){
   String ssid = pref.getString("ssid", "");
   String pass = pref.getString("pass", "");
   pref.end();
-  ledSet(HIGH, LOW, LOW);
+  ledSet(HIGH, LOW);
 
   if (ssid == "") {
     Serial.println("Tidak ada WiFi tersimpan → start setup mode");
-    ledSet(HIGH, LOW, LOW);
+    ledSet(HIGH, LOW);
     startSetupPortal();
   } else {
     WiFi.begin(ssid.c_str(), pass.c_str());
@@ -496,19 +512,19 @@ void setup(){
 
     unsigned long startAttemptTime = millis();
     while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
-      blinkBlue();
+      blinkRed();
       Serial.print(".");
       delay(500);
     }
 
     if (WiFi.status() != WL_CONNECTED) {
       Serial.println("\nFailed to connect → starting setup again...");
-      ledSet(HIGH, LOW, HIGH);
+      ledSet(HIGH, LOW);
       delay(1000);
       startSetupPortal();
     } else {
       wifiConnected = true;
-      ledSet(HIGH, HIGH, LOW);
+      ledSet(HIGH, HIGH);
       Serial.println("\nWiFi connected!");
       Serial.println(WiFi.localIP());
       deviceId = getDeviceID();
@@ -537,10 +553,11 @@ void setup(){
 
   if (WiFi.status() == WL_CONNECTED && app.ready()) {
     sendWiFiInfoToFirebase();
-    ledSet(HIGH, HIGH, LOW);
+    ledSet(HIGH, HIGH);
   } else {
     Serial.println("Firebase Belum Siap atau WiFi Tidak Terhubung");
-    ledSet(HIGH, LOW, HIGH);
+    digitalWrite(LED_BLUE, HIGH);
+    blinkRed();
   }
 
 }
