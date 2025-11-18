@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="./output.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="./img/logo_techbridge.png" />
+  <title>Pengaturan | TechBridge</title>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+  <div id="overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden lg:hidden">
+  </div>
+  <aside id="sidebar"
+    class="fixed top-0 left-0 h-screen w-72 bg-dark-green text-white shadow-2xl z-50 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+    <!-- Header Sidebar -->
+    <div class="p-6 border-b border-white/10">
+      <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+        <div class="flex items-center justify-between">
+          <!-- Left: logo + name -->
+          <div class="flex items-center gap-3">
+            <div class="rounded-lg">
+              <img src="./img/logo_techbridge.png" alt="Logo TechBridge"
+                class="w-10 h-10 object-cover rounded-lg border border-white/20" />
+            </div>
+            <div>
+              <h2 id="username" class="font-semibold text-sm leading-tight">
+                Unknown
+              </h2>
+            </div>
+          </div>
+          <!-- Right: online indicator -->
+          <span class="w-2.5 h-2.5 bg-lime-green rounded-full animate-pulse"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Navigation -->
+    <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+      <a href="index.html"
+        class="group flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 font-medium text-sm transition-all duration-200 relative overflow-hidden">
+        <div
+          class="absolute left-0 top-0 bottom-0 w-1 bg-lime-green rounded-r scale-y-0 group-hover:scale-y-100 transition-transform duration-200">
+        </div>
+        <ion-icon name="home" class="text-xl"></ion-icon>
+        <span>Dashboard</span>
+      </a>
+
+      <a href="notification.html"
+        class="group flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 font-medium text-sm transition-all duration-200 relative overflow-hidden">
+        <div
+          class="absolute left-0 top-0 bottom-0 w-1 bg-lime-green rounded-r scale-y-0 group-hover:scale-y-100 transition-transform duration-200">
+        </div>
+        <ion-icon name="notifications" class="text-xl"></ion-icon>
+        <span>Notifikasi</span>
+      </a>
+
+      <a href="setting.html"
+        class="group flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 text-lime-green font-medium text-sm transition-all duration-200 relative overflow-hidden">
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-lime-green rounded-r"></div>
+        <ion-icon name="settings" class="text-xl"></ion-icon>
+        <span>Pengaturan</span>
+      </a>
+    </nav>
+
+    <!-- Footer Sidebar -->
+    <div class="border-t border-white/10 p-4">
+      <a href="#"
+        class="logout-btn group flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:text-red-400 hover:bg-red-500/10 font-medium text-sm transition-all duration-200">
+        <ion-icon name="log-out-outline" class="text-xl"></ion-icon>
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="lg:ml-72 p-6 sm:p-8 space-y-10 transition-all duration-300">
+    <header class="flex items-center justify-between mb-8 bg-white shadow-md rounded-xl p-4 sticky top-4 z-30">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-dark-green">
+          Notifikasi
+
+        </h1>
+      </div>
+      <button id="menu-btn" class="p-2 rounded-md hover:bg-gray-100 text-dark-green lg:hidden z-50" title="menu-icon">
+        <ion-icon name="menu-outline" class="text-2xl leading-none align-middle"></ion-icon>
+      </button>
+    </header>
+    <!-- Section 3 card summary -->
+    <section class="mt-2">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))]
+           md:grid-cols-[repeat(auto-fit,minmax(250px,327px))]
+           gap-6 w-full max-w-5xl mx-auto px-0 justify-center md:justify-start">
+
+        <!-- Card: Total Notifikasi -->
+        <div
+          class="w-full md:w-56 bg-white border border-emerald-200 rounded-xl shadow-sm px-3 py-2 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-gray-500">Total Notifikasi</p>
+            <p class="text-2xl font-bold text-dark-green">5</p>
+          </div>
+          <div class="w-10 h-10 rounded-full flex items-center justify-center bg-emerald-50 text-emerald-500">
+            <ion-icon name="information-circle-outline" class="text-2xl"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Card: Critical -->
+        <div
+          class="w-full md:w-56 bg-white border border-red-200 rounded-xl shadow-sm px-3 py-2 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-gray-500">Critical</p>
+            <p class="text-2xl font-bold text-red-500">3</p>
+          </div>
+          <div class="w-10 h-10 rounded-full flex items-center justify-center bg-red-50 text-red-500">
+            <ion-icon name="alert-circle-outline" class="text-2xl"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Card: Warning -->
+        <div
+          class="w-full md:w-56 bg-white border border-amber-200 rounded-xl shadow-sm px-3 py-2 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-gray-500">Warning</p>
+            <p class="text-2xl font-bold text-amber-500">5</p>
+          </div>
+          <div class="w-10 h-10 rounded-full flex items-center justify-center bg-amber-50 text-amber-500">
+            <ion-icon name="warning-outline" class="text-2xl"></ion-icon>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <!-- Ionicons -->
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+  <!-- Sidebar + logout (boleh disimplify kalau mau) -->
+  <script type="module">
+    import { logoutUser, app } from "./auth.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const logoutBtn = document.querySelector(".logout-btn");
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (confirm("Yakin ingin logout?")) {
+          logoutUser();
+        }
+      });
+    }
+
+    const auth = getAuth(app);
+    const firestore = getFirestore(app);
+    const usernameEl = document.getElementById("username");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+
+      const userRef = doc(firestore, "users", user.uid);
+      const snap = await getDoc(userRef);
+
+      if (snap.exists()) {
+        const data = snap.data();
+        usernameEl.textContent = data.name || "Unknown";
+      } else {
+        usernameEl.textContent = "Unknown";
+      }
+    });
+
+    const sidebar = document.getElementById("sidebar");
+    const menuBtn = document.getElementById("menu-btn");
+    const overlay = document.getElementById("overlay");
+
+    if (menuBtn) {
+      menuBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("-translate-x-full");
+        overlay.classList.toggle("hidden");
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener("click", () => {
+        sidebar.classList.add("-translate-x-full");
+        overlay.classList.add("hidden");
+      });
+    }
+  </script>
+</body>
+
+</html>
