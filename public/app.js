@@ -27,7 +27,6 @@ const database = getDatabase(app);
 
 // last monitoring data
 let lastTemp = null;
-let lastLux = null;
 let lastHum = null;
 let lastTds = null;
 let lastTempWater = null;
@@ -39,7 +38,6 @@ const infoRef = ref(database, `devices/${deviceId}/info`);
 
 const temperatureRef = ref(database, `${basePath}/temperature`);
 const humidityRef = ref(database, `${basePath}/humidity`);
-const luxRef = ref(database, `${basePath}/lux`);
 const tempWaterRef = ref(database, `${basePath}/tempWater`);
 const tdsRef = ref(database, `${basePath}/tds`);
 
@@ -47,13 +45,6 @@ const tdsRef = ref(database, `${basePath}/tds`);
 function updateElement(id, value, suffix = "") {
     const el = document.getElementById(id);
     if (el) el.innerText = value + suffix;
-}
-
-function getLuxCategory(lux_value) {
-    if (lux_value < 1024) return "Gelap";
-    else if (lux_value < 2048) return "Redup";
-    else if (lux_value < 3072) return "Sedang";
-    else return "Terang";
 }
 
 function getTempCategory(temp_value) {
@@ -232,52 +223,6 @@ onValue(tempWaterRef, (snapshot) => {
         }
     }
     lastTempWater = tempWater;
-});
-
-onValue(luxRef, (snapshot) => {
-    const lux = snapshot.val();
-    console.log("Lux:", lux);
-    updateElement("lux", lux, " lux");
-    const category = getLuxCategory(lux);
-    const statusEl = document.getElementById("lux-status");
-    if (statusEl) {
-        statusEl.innerText = category;
-        statusEl.className =
-            "px-3 py-1 rounded-full text-sm font-medium " +
-            (category === "Gelap"
-                ? "bg-gray-500 text-gray-100"
-                : category === "Redup"
-                ? "bg-blue-100 text-blue-600"
-                : category === "Sedang"
-                ? "bg-yellow-100 text-yellow-600"
-                : "bg-green-100 text-green-600");
-    }
-
-    // Hitung selisih
-    if (lastLux !== null) {
-        const diff = lux - lastLux;
-        const diffEl = document.getElementById("lux-diff");
-        if (diffEl) {
-            if (diff > 0) {
-                diffEl.className =
-                    "flex items-center gap-1 ml-2 text-green-600";
-                diffEl.innerHTML = `<ion-icon name="arrow-up-outline"></ion-icon>
-                    <span class="text-sm font-medium">+${diff} lux</span>
-                `;
-            } else if (diff < 0) {
-                diffEl.className = "flex items-center gap-1 ml-2 text-red-600";
-                diffEl.innerHTML = `<ion-icon name="arrow-down-outline"></ion-icon>
-                    <span class="text-sm font-medium">${diff} lux</span>
-                `;
-            } else {
-                diffEl.className = "flex items-center gap-1 ml-2 text-gray-600";
-                diffEl.innerHTML = `<ion-icon name="remove-outline"></ion-icon>
-                    <span class="text-sm font-medium">0 lux</span>
-                `;
-            }
-        }
-    }
-    lastLux = lux;
 });
 
 onValue(tdsRef, (snapshot) => {
