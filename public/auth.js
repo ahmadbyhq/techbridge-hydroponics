@@ -22,6 +22,14 @@ import {
     set,
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -41,20 +49,46 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
+const firestore = getFirestore(app);
 let isRegistering = false;
 
-onAuthStateChanged(auth, (user) => {
-    const path = window.location.pathname;
-    if (isRegistering) return;
+const publicPages = ["login.html", "register.html"];
 
-    if (user) {
-        if (path.endsWith("login.html") || path.endsWith("register.html")) {
-            window.location.href = "index.html";
-        }
-    } else {
-        if (!path.endsWith("login.html") && !path.endsWith("register.html")) {
+onAuthStateChanged(auth, async (user) => {
+    const path = window.location.pathname.split("/").pop();
+
+    if (!user) {
+        if (!publicPages.includes(path)) {
             window.location.href = "login.html";
         }
+        return;
+    }
+
+    // if (isRegistering) return;
+
+    const userRef = doc(firestore, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+        if (path !== "setup.html") window.location.href = "setup.html";
+        return;
+    }
+
+    const data = snap.data();
+
+    if (data.device_id) {
+        if (
+            path === "login.html" ||
+            path === "register.html" ||
+            path === "setup.html"
+        ) {
+            window.location.href = "index.html";
+        }
+        return;
+    }
+
+    if (path !== "setup.html") {
+        window.location.href = "setup.html";
     }
 });
 
@@ -70,28 +104,6 @@ function getLocalTimeString() {
 
 // Authentication function
 async function registerUser(name, email, password) {
-    isRegistering = true;
-    const result = await validatePassword(auth, password);
-
-    if (!result.isValid) {
-        let msg = "Password belum memenuhi kriteria:";
-        if (!result.meetsMinimumLength) msg += "\n- Harus minimal 6 karakter";
-        if (!result.containsUppercaseLetter)
-            msg += "\n- Harus ada huruf besar (A–Z)";
-        if (!result.containsLowercaseLetter)
-            msg += "\n- Harus ada huruf kecil (a–z)";
-        if (!result.containsNumericCharacter)
-            msg += "\n- Harus ada angka (0–9)";
-        if (!result.containsNonAlphanumericCharacter)
-            msg += "\n- Harus ada simbol ";
-
-        console.error("Firebase password validation failed:", result);
-        // lempar error custom agar bisa ditangani di register.html
-        const err = new Error(msg);
-        err.code = "auth/invalid-password-policy";
-        throw err;
-    }
-
     try {
         const userCredential = await createUserWithEmailAndPassword(
             auth,
@@ -99,24 +111,19 @@ async function registerUser(name, email, password) {
             password
         );
         const user = userCredential.user;
-        const userRef = ref(db, "users/" + user.uid);
 
-        await set(userRef, {
-            name: name,
-            email: email,
+        await setDoc(doc(firestore, "users", user.uid), {
+            name,
+            email,
             created_at: getLocalTimeString(),
+            device_id: null,
         });
 
-        alert("Registrasi berhasil! Silakan lanjut ke setup device.");
         console.log("User Registered:", user.uid);
-        setTimeout(() => {
-            window.location.href = "setup.html";
-        }, 300);
+        window.location.href = "setup.html";
     } catch (error) {
         console.error("Firebase Auth Error:", error);
         throw error;
-    } finally {
-        isRegistering = false;
     }
 }
 
@@ -129,10 +136,6 @@ async function loginUser(email, password) {
             email,
             password
         );
-        const user = userCredential.user;
-
-        console.log("User logged in:", user.email);
-        window.location.href = "index.html";
     } catch (error) {
         console.error("Firebase Auth Error:", error);
         throw error;
@@ -149,4 +152,4 @@ function logoutUser() {
         });
 }
 
-export { registerUser, loginUser, logoutUser };
+export { registerUser, loginUser, logoutUser, app, getLocalTimeString };
