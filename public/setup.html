@@ -18,7 +18,7 @@
                 Setup ID Device
             </h1>
 
-            <form class="space-y-3">
+            <form class="space-y-3" id="setupForm">
                 <div class="relative">
                     <label
                         for="deviceId"
@@ -26,7 +26,7 @@
                         >Id Device</label
                     >
                     <input
-                        type="teks"
+                        type="text"
                         id="deviceId"
                         class="w-full rounded-md border bg-white border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
                         placeholder="Masukkan ID Device"
@@ -35,6 +35,10 @@
                         name="hardware-chip-outline"
                         class="absolute right-3 top-10 text-gray-500 text-lg"
                     ></ion-icon>
+                    <p
+                        id="msgError"
+                        class="text-sm text-red-600 mt-1 mb-0 hidden whitespace-pre-line"
+                    ></p>
                 </div>
 
                 <button
@@ -46,6 +50,7 @@
             </form>
         </div>
         <script type="module" src="./app.js"></script>
+        <script type="module" src="./setup.js"></script>
         <script
             type="module"
             src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
