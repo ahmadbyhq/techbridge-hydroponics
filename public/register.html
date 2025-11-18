@@ -128,6 +128,31 @@
             const isValidEmail = (email) =>
                 /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+            function validatePasswordClient(password) {
+                const errors = [];
+
+                if (password.length < 6) {
+                    errors.push("Minimal 6 karakter");
+                }
+                if (!/[A-Z]/.test(password)) {
+                    errors.push("Harus ada huruf besar (A–Z)");
+                }
+                if (!/[a-z]/.test(password)) {
+                    errors.push("Harus ada huruf kecil (a–z)");
+                }
+                if (!/[0-9]/.test(password)) {
+                    errors.push("Harus ada angka (0–9)");
+                }
+                if (!/[^A-Za-z0-9]/.test(password)) {
+                    errors.push("Harus ada simbol");
+                }
+
+                return {
+                    isValid: errors.length === 0,
+                    message: errors.join(", "),
+                };
+            }
+
             form.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 emailError.classList.add("hidden");
@@ -146,6 +171,15 @@
                     return;
                 }
 
+                const passCheck = validatePasswordClient(password);
+                if (!passCheck.isValid) {
+                    passwordError.textContent =
+                        "Password belum memenuhi kriteria: " +
+                        passCheck.message;
+                    passwordError.classList.remove("hidden");
+                    return;
+                }
+
                 try {
                     await registerUser(name, email, password);
                 } catch (error) {
@@ -154,12 +188,6 @@
                     if (error.code === "auth/email-already-in-use") {
                         emailError.textContent = "Email ini sudah terdaftar.";
                         emailError.classList.remove("hidden");
-                    } else if (error.code === "auth/invalid-email") {
-                        emailError.textContent = "Format email tidak valid.";
-                        emailError.classList.remove("hidden");
-                    } else if (error.code === "auth/invalid-password-policy") {
-                        passwordError.textContent = error.message;
-                        passwordError.classList.remove("hidden");
                     } else {
                         passwordError.textContent =
                             "Terjadi kesalahan, coba lagi.";
