@@ -100,9 +100,202 @@
 
         <main
             class="lg:ml-72 p-6 sm:p-8 space-y-10 transition-all duration-300"
-        ></main>
+        >
+            <header
+                class="flex items-center justify-between mb-8 bg-white shadow-md rounded-xl p-4 sticky top-4 z-30"
+            >
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-dark-green">
+                        Pengaturan
+                    </h1>
+                </div>
 
-        <script type="module" src="./app.js"></script>
+                <button
+                    id="menu-btn"
+                    class="p-2 rounded-md hover:bg-gray-100 text-dark-green lg:hidden z-50"
+                    title="menu-icon"
+                >
+                    <ion-icon
+                        name="menu-outline"
+                        class="text-2xl leading-none align-middle"
+                    ></ion-icon>
+                </button>
+            </header>
+            <section
+                id="sensor-settings-card"
+                class="bg-white border border-gray-300 rounded-xl shadow-md p-6 space-y-6"
+            >
+                <h2
+                    class="text-xl font-semibold text-dark-green flex items-center gap-2"
+                >
+                    <ion-icon
+                        name="thermometer-outline"
+                        class="text-xl"
+                    ></ion-icon>
+                    Batas Sensor
+                </h2>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">
+                            Suhu Air (°C)
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-600"
+                                    >Minimum</label
+                                >
+                                <input
+                                    id="tempWaterMin"
+                                    type="number"
+                                    class="mt-1 w-full bg-soft-green px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
+                                    placeholder="Misalnya 18"
+                                />
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600"
+                                    >Maksimum</label
+                                >
+                                <input
+                                    id="tempWaterMax"
+                                    type="number"
+                                    class="mt-1 w-full bg-soft-green px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
+                                    placeholder="Misalnya 24"
+                                />
+                            </div>
+                        </div>
+                        <p
+                            id="errTempWater"
+                            class="error-msg text-red-600 text-sm mt-1 hidden"
+                        ></p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">
+                            Suhu Lingkungan (°C)
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-600"
+                                    >Minimum</label
+                                >
+                                <input
+                                    id="tempEnvMin"
+                                    type="number"
+                                    class="mt-1 w-full bg-soft-green px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
+                                    placeholder="Misalnya 20"
+                                />
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600"
+                                    >Maksimum</label
+                                >
+                                <input
+                                    id="tempEnvMax"
+                                    type="number"
+                                    class="mt-1 w-full bg-soft-green px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
+                                    placeholder="Misalnya 28"
+                                />
+                            </div>
+                        </div>
+                        <p
+                            id="errTempEnv"
+                            class="error-msg text-red-600 text-sm mt-1 hidden"
+                        ></p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">
+                            Kelembaban (%)
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-600"
+                                    >Minimum</label
+                                >
+                                <input
+                                    id="humidityMin"
+                                    type="number"
+                                    class="mt-1 w-full bg-soft-green px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
+                                    placeholder="Misalnya 50"
+                                />
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600"
+                                    >Maksimum</label
+                                >
+                                <input
+                                    id="humidityMax"
+                                    type="number"
+                                    class="mt-1 w-full bg-soft-green px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
+                                    placeholder="Misalnya 80"
+                                />
+                            </div>
+                        </div>
+                        <p
+                            id="errHumidity"
+                            class="error-msg text-red-600 text-sm mt-1 hidden"
+                        ></p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">
+                            Kandungan Nutrisi (ppm)
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-600"
+                                    >Minimum</label
+                                >
+                                <input
+                                    id="tdsMin"
+                                    type="number"
+                                    class="mt-1 w-full bg-soft-green px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
+                                    placeholder="Misalnya 700"
+                                />
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600"
+                                    >Maksimum</label
+                                >
+                                <input
+                                    id="tdsMax"
+                                    type="number"
+                                    class="mt-1 w-full bg-soft-green px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-dark-green/70"
+                                    placeholder="Misalnya 900"
+                                />
+                            </div>
+                        </div>
+                        <p
+                            id="errTDS"
+                            class="error-msg text-red-600 text-sm mt-1 hidden"
+                        ></p>
+                    </div>
+                </div>
+
+                <button
+                    id="saveSensorSettings"
+                    class="mt-1 bg-dark-green text-white px-6 py-3 rounded-lg font-semibold hover:bg-dark-green/90 transition w-full sm:w-auto"
+                >
+                    Simpan Perubahan
+                </button>
+            </section>
+            <section
+                id="notification-settings-card"
+                class="bg-white border border-gray-300 rounded-xl shadow-md p-6 space-y-4"
+            >
+                <h2
+                    class="text-xl font-semibold text-dark-green flex items-center gap-3"
+                >
+                    <ion-icon
+                        name="notifications-outline"
+                        class="text-xl"
+                    ></ion-icon>
+                    Pengaturan Notifikasi
+                </h2>
+            </section>
+        </main>
+
         <script
             type="module"
             src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
@@ -169,6 +362,93 @@
             overlay.addEventListener("click", () => {
                 sidebar.classList.add("-translate-x-full");
                 overlay.classList.add("hidden");
+            });
+
+            //validasi input batas sensor
+            const saveBtn = document.getElementById("saveSensorSettings");
+
+            saveBtn.addEventListener("click", function () {
+                const fields = {
+                    tempWater: {
+                        min: parseFloat(
+                            document.getElementById("tempWaterMin").value
+                        ),
+                        max: parseFloat(
+                            document.getElementById("tempWaterMax").value
+                        ),
+                        err: document.getElementById("errTempWater"),
+                        range: { min: -55, max: 125 },
+                    },
+                    tempEnv: {
+                        min: parseFloat(
+                            document.getElementById("tempEnvMin").value
+                        ),
+                        max: parseFloat(
+                            document.getElementById("tempEnvMax").value
+                        ),
+                        err: document.getElementById("errTempEnv"),
+                        range: { min: -40, max: 80 },
+                    },
+                    humidity: {
+                        min: parseFloat(
+                            document.getElementById("humidityMin").value
+                        ),
+                        max: parseFloat(
+                            document.getElementById("humidityMax").value
+                        ),
+                        err: document.getElementById("errHumidity"),
+                        range: { min: 0, max: 100 },
+                    },
+                    tds: {
+                        min: parseFloat(
+                            document.getElementById("tdsMin").value
+                        ),
+                        max: parseFloat(
+                            document.getElementById("tdsMax").value
+                        ),
+                        err: document.getElementById("errTDS"),
+                        range: { min: 0, max: 1000 },
+                    },
+                };
+
+                let isValid = true;
+
+                Object.values(fields).forEach((f) => {
+                    f.err.classList.add("hidden");
+                    f.err.textContent = "";
+                });
+
+                Object.entries(fields).forEach(([key, sensor]) => {
+                    if (isNaN(sensor.min) || isNaN(sensor.max)) {
+                        sensor.err.textContent =
+                            "Nilai minimum dan maksimum harus diisi.";
+                        sensor.err.classList.remove("hidden");
+                        isValid = false;
+                        return;
+                    }
+
+                    if (sensor.min >= sensor.max) {
+                        sensor.err.textContent =
+                            "Nilai minimum harus lebih kecil dari maksimum.";
+                        sensor.err.classList.remove("hidden");
+                        isValid = false;
+                        return;
+                    }
+
+                    if (
+                        sensor.min < sensor.range.min ||
+                        sensor.max > sensor.range.max
+                    ) {
+                        sensor.err.textContent = `Rentang harus berada di antara ${sensor.range.min} dan ${sensor.range.max}.`;
+                        sensor.err.classList.remove("hidden");
+                        isValid = false;
+                        return;
+                    }
+                });
+
+                if (!isValid) return;
+
+                console.log("Valid! Siap disimpan ke database.");
             });
         </script>
     </body>
