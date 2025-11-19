@@ -304,6 +304,7 @@
             nomodule
             src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
         ></script>
+        <script type="module" src="./setting.js"></script>
         <script type="module">
             import { logoutUser, app } from "./auth.js";
             import {
@@ -328,25 +329,6 @@
                 });
             }
 
-            const auth = getAuth(app);
-            const firestore = getFirestore(app);
-
-            const usernameEl = document.getElementById("username");
-
-            onAuthStateChanged(auth, async (user) => {
-                if (!user) return;
-
-                const userRef = doc(firestore, "users", user.uid);
-                const snap = await getDoc(userRef);
-
-                if (snap.exists()) {
-                    const data = snap.data();
-                    usernameEl.textContent = data.name || "Unknown";
-                } else {
-                    usernameEl.textContent = "Unknown";
-                }
-            });
-
             // sidebar
             const sidebar = document.getElementById("sidebar");
             const menuBtn = document.getElementById("menu-btn");
@@ -362,93 +344,6 @@
             overlay.addEventListener("click", () => {
                 sidebar.classList.add("-translate-x-full");
                 overlay.classList.add("hidden");
-            });
-
-            //validasi input batas sensor
-            const saveBtn = document.getElementById("saveSensorSettings");
-
-            saveBtn.addEventListener("click", function () {
-                const fields = {
-                    tempWater: {
-                        min: parseFloat(
-                            document.getElementById("tempWaterMin").value
-                        ),
-                        max: parseFloat(
-                            document.getElementById("tempWaterMax").value
-                        ),
-                        err: document.getElementById("errTempWater"),
-                        range: { min: -55, max: 125 },
-                    },
-                    tempEnv: {
-                        min: parseFloat(
-                            document.getElementById("tempEnvMin").value
-                        ),
-                        max: parseFloat(
-                            document.getElementById("tempEnvMax").value
-                        ),
-                        err: document.getElementById("errTempEnv"),
-                        range: { min: -40, max: 80 },
-                    },
-                    humidity: {
-                        min: parseFloat(
-                            document.getElementById("humidityMin").value
-                        ),
-                        max: parseFloat(
-                            document.getElementById("humidityMax").value
-                        ),
-                        err: document.getElementById("errHumidity"),
-                        range: { min: 0, max: 100 },
-                    },
-                    tds: {
-                        min: parseFloat(
-                            document.getElementById("tdsMin").value
-                        ),
-                        max: parseFloat(
-                            document.getElementById("tdsMax").value
-                        ),
-                        err: document.getElementById("errTDS"),
-                        range: { min: 0, max: 1000 },
-                    },
-                };
-
-                let isValid = true;
-
-                Object.values(fields).forEach((f) => {
-                    f.err.classList.add("hidden");
-                    f.err.textContent = "";
-                });
-
-                Object.entries(fields).forEach(([key, sensor]) => {
-                    if (isNaN(sensor.min) || isNaN(sensor.max)) {
-                        sensor.err.textContent =
-                            "Nilai minimum dan maksimum harus diisi.";
-                        sensor.err.classList.remove("hidden");
-                        isValid = false;
-                        return;
-                    }
-
-                    if (sensor.min >= sensor.max) {
-                        sensor.err.textContent =
-                            "Nilai minimum harus lebih kecil dari maksimum.";
-                        sensor.err.classList.remove("hidden");
-                        isValid = false;
-                        return;
-                    }
-
-                    if (
-                        sensor.min < sensor.range.min ||
-                        sensor.max > sensor.range.max
-                    ) {
-                        sensor.err.textContent = `Rentang harus berada di antara ${sensor.range.min} dan ${sensor.range.max}.`;
-                        sensor.err.classList.remove("hidden");
-                        isValid = false;
-                        return;
-                    }
-                });
-
-                if (!isValid) return;
-
-                console.log("Valid! Siap disimpan ke database.");
             });
         </script>
     </body>
