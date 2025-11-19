@@ -82,6 +82,17 @@ form.addEventListener("submit", async (e) => {
                 owner_name: userData.name,
                 owner_email: userData.email,
                 claimed_at: getLocalTimeString(),
+
+                sensor_limits: {
+                    temp_env_min: 20,
+                    temp_env_max: 30,
+                    temp_water_min: 18,
+                    temp_water_max: 24,
+                    humidity_min: 50,
+                    humidity_max: 80,
+                    tds_min: 700,
+                    tds_max: 900,
+                },
             },
             { merge: true }
         );

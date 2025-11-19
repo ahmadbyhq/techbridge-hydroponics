@@ -50,7 +50,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 const firestore = getFirestore(app);
-let isRegistering = false;
 
 const publicPages = ["login.html", "register.html"];
 
@@ -69,12 +68,18 @@ onAuthStateChanged(auth, async (user) => {
     const userRef = doc(firestore, "users", user.uid);
     const snap = await getDoc(userRef);
 
+    const data = snap.data();
+    const usernameEl = document.getElementById("username");
+
+    // update nama sidebar
+    if (usernameEl) {
+        usernameEl.textContent = data.name || "Unknown";
+    }
+
     if (!snap.exists()) {
         if (path !== "setup.html") window.location.href = "setup.html";
         return;
     }
-
-    const data = snap.data();
 
     if (data.device_id) {
         if (
