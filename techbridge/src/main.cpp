@@ -511,7 +511,8 @@ float readTDS(float waterTemp) {
 
 void checkSetupButton() {
   int btn = digitalRead(SETUP_WIFI_BTN);
-  if (btn == LOW) {
+  if (btn == LOW && millis() > 3000) {
+    delay(30);
     Serial.println("Tombol ditekan");
     if (buttonPressTime == 0) {
       buttonPressTime = millis();
@@ -578,7 +579,7 @@ void setup() {
   // setup pin input & output
   pinMode(LED_BLUE, OUTPUT);
   pinMode(LED_RED, OUTPUT);
-  pinMode(SETUP_WIFI_BTN, INPUT);
+  pinMode(SETUP_WIFI_BTN, INPUT_PULLUP);
   pinMode(TDS, INPUT);
 
   updateLED();

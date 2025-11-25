@@ -7,7 +7,12 @@
     },
     "hosting": {
         "public": "public",
-        "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+        "ignore": [
+            "firebase.json",
+            "**/.*",
+            "**/node_modules/**",
+            "**/.disabled"
+        ],
         "redirects": [
             {
                 "source": "/test.html",
