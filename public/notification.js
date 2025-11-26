@@ -1,5 +1,6 @@
 // notification.js
 import { app } from "./auth.js";
+
 import {
   getAuth,
   onAuthStateChanged,
@@ -13,7 +14,6 @@ import {
   query,
   orderBy,
   onSnapshot,
-  updateDoc,
   deleteDoc,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
@@ -31,20 +31,34 @@ const totalNotifEl = document.getElementById("total-notif");
 const markAllReadBtn = document.getElementById("mark-all-read");
 const deleteAllBtn = document.getElementById("delete-all");
 
+console.log("notification.js loaded");
+
 // ================== FIREBASE LISTENER ==================
 
 async function startNotificationListener(user) {
+  console.log("startNotificationListener for uid:", user.uid);
+
   // ambil device_id dari users/{uid}
   const userRef = doc(firestore, "users", user.uid);
   const userSnap = await getDoc(userRef);
-  if (!userSnap.exists()) return;
+
+  if (!userSnap.exists()) {
+    console.error("User doc tidak ditemukan di Firestore");
+    return;
+  }
 
   const userData = userSnap.data();
   const deviceId = userData.device_id;
-  if (!deviceId) return;
+  console.log("deviceId dari user doc:", deviceId);
+
+  if (!deviceId) {
+    console.error("device_id kosong di dokumen user");
+    return;
+  }
 
   currentDeviceId = deviceId;
 
+  // listen Firestore: devices/{deviceId}/notifications
   const notifCol = collection(
     firestore,
     "devices",
@@ -54,25 +68,33 @@ async function startNotificationListener(user) {
 
   const q = query(notifCol, orderBy("created_at", "desc"));
 
-  // realtime update
-  onSnapshot(q, (snapshot) => {
-    notifications = [];
-    snapshot.forEach((docSnap) => {
-      notifications.push({
-        id: docSnap.id,
-        ...docSnap.data(),
+  onSnapshot(
+    q,
+    (snapshot) => {
+      notifications = [];
+      snapshot.forEach((docSnap) => {
+        notifications.push({
+          id: docSnap.id,
+          ...docSnap.data(),
+        });
       });
-    });
-    renderNotifications();
-  });
+      renderNotifications();
+    },
+    (error) => {
+      console.error("onSnapshot notifications error:", error);
+    }
+  );
 }
 
 onAuthStateChanged(auth, (user) => {
+  console.log("onAuthStateChanged, user =", user);
+
   if (!user) {
-    // kalau perlu paksa login
+    console.warn("Tidak ada user login");
     // window.location.href = "login.html";
     return;
   }
+
   startNotificationListener(user);
 });
 
@@ -85,7 +107,7 @@ function renderNotifications() {
 
   if (notifications.length === 0) {
     notifListEl.innerHTML = `
-      <p class="text-sm text-gray-500 text-center py-4">
+      <p class="text-md text-gray-500 text-center py-4">
         Belum ada notifikasi.
       </p>
     `;
@@ -115,16 +137,19 @@ function renderNotifications() {
     wrapper.innerHTML = `
       <div class="mt-0.5">
         <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 ${iconBorder}">
-          <ion-icon name="${level === "danger"
-        ? "alert-circle-outline"
-        : "warning-outline"
-      }" class="text-xl"></ion-icon>
+          <ion-icon name="${
+            level === "danger"
+              ? "alert-circle-outline"
+              : "warning-outline"
+          }" class="text-xl"></ion-icon>
         </div>
       </div>
       <div class="flex-1">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="font-semibold text-sm text-gray-900">${notif.title || "-"}</p>
+            <p class="font-semibold text-sm text-gray-900">${
+              notif.title || "-"
+            }</p>
             <p class="text-xs text-gray-700 mt-0.5">
               ${notif.message || ""}
             </p>
@@ -154,17 +179,21 @@ function renderNotifications() {
 
 function formatTimestamp(ts) {
   if (!ts) return "";
+
   // Firestore Timestamp -> Date
-  const date =
-    ts.toDate && typeof ts.toDate === "function" ? ts.toDate() : ts;
-  return date.toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  if (ts.toDate && typeof ts.toDate === "function") {
+    const date = ts.toDate();
+    return date.toLocaleString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  }
+
+  return "";
 }
 
 function updateTotalNotif() {
@@ -188,8 +217,8 @@ function attachCloseHandlers() {
         "notifications",
         id
       );
+
       await deleteDoc(notifRef);
-      // gak perlu ubah array manual, onSnapshot akan update sendiri
     });
   });
 }
@@ -203,14 +232,14 @@ if (markAllReadBtn) {
 
     notifications.forEach((n) => {
       if (!n.read) {
-        const ref = doc(
+        const refDoc = doc(
           firestore,
           "devices",
           currentDeviceId,
           "notifications",
           n.id
         );
-        batch.update(ref, { read: true });
+        batch.update(refDoc, { read: true });
       }
     });
 
@@ -227,14 +256,14 @@ if (deleteAllBtn) {
     const batch = writeBatch(firestore);
 
     notifications.forEach((n) => {
-      const ref = doc(
+      const refDoc = doc(
         firestore,
         "devices",
         currentDeviceId,
         "notifications",
         n.id
       );
-      batch.delete(ref);
+      batch.delete(refDoc);
     });
 
     await batch.commit();
