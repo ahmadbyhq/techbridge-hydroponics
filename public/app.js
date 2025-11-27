@@ -11,6 +11,9 @@ import {
     doc,
     getDoc,
     updateDoc,
+    collection,
+    addDoc,
+    serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
 import {
@@ -47,6 +50,10 @@ let lastTempWater = null;
 let sensorLimits = null;
 let deviceId = null;
 let info = null;
+let lastTempCategory = null;
+let lastHumCategory = null;
+let lastTempWaterCategory = null;
+let lastTdsCategory = null;
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -103,7 +110,7 @@ function startRealtimeListener(deviceId) {
         checkDeviceStatus(info);
     });
 
-    onValue(temperatureRef, (snapshot) => {
+    onValue(temperatureRef, async (snapshot) => {
         const v = snapshot.val();
         updateElement("temperature", v, " °C");
         console.log("DEBUG TEMP =>", snapshot.exists(), snapshot.val());
@@ -111,42 +118,123 @@ function startRealtimeListener(deviceId) {
         const cat = getTempCategory(v);
         updateStatus("temp-status", cat);
 
+        // NOTIF: kalau kategori berubah & jadi di luar normal
+        if (sensorLimits && cat !== lastTempCategory) {
+            if (cat === "Panas") {
+                await createNotification({
+                    title: "Suhu Lingkungan Tinggi",
+                    message: `Suhu udara mencapai ${v.toFixed(1)}°C, melebihi batas maksimal ${sensorLimits.temp_env_max}°C.`,
+                    level: "danger",
+                    sensor_label: "Sensor Suhu Udara",
+                });
+            } else if (cat === "Dingin") {
+                await createNotification({
+                    title: "Suhu Lingkungan Rendah",
+                    message: `Suhu udara turun ke ${v.toFixed(1)}°C, di bawah batas minimal ${sensorLimits.temp_env_min}°C.`,
+                    level: "warning",
+                    sensor_label: "Sensor Suhu Udara",
+                });
+            }
+        }
+        lastTempCategory = cat;
+
         updateDiff("temp-diff", v - lastTemp, "°C");
         lastTemp = v;
     });
 
-    onValue(humidityRef, (snapshot) => {
+
+    onValue(humidityRef, async (snapshot) => {
         const v = snapshot.val();
         updateElement("humidity", v, " %");
 
         const cat = getHumCategory(v);
         updateStatus("hum-status", cat);
 
+        if (sensorLimits && cat !== lastHumCategory) {
+            if (cat === "Tinggi") {
+                await createNotification({
+                    title: "Kelembapan Tinggi",
+                    message: `Kelembapan naik menjadi ${v.toFixed(1)}%, melebihi batas maksimal ${sensorLimits.humidity_max}%.`,
+                    level: "warning",
+                    sensor_label: "Sensor Kelembapan",
+                });
+            } else if (cat === "Rendah") {
+                await createNotification({
+                    title: "Kelembapan Rendah",
+                    message: `Kelembapan turun menjadi ${v.toFixed(1)}%, di bawah batas minimal ${sensorLimits.humidity_min}%.`,
+                    level: "warning",
+                    sensor_label: "Sensor Kelembapan",
+                });
+            }
+        }
+        lastHumCategory = cat;
+
         updateDiff("hum-diff", v - lastHum, "%");
         lastHum = v;
     });
 
-    onValue(tempWaterRef, (snapshot) => {
+
+    onValue(tempWaterRef, async (snapshot) => {
         const v = snapshot.val();
         updateElement("temp-water", v, " °C");
 
         const cat = getTempWaterCategory(v);
         updateStatus("temp-water-status", cat);
 
+        if (sensorLimits && cat !== lastTempWaterCategory) {
+            if (cat === "Panas") {
+                await createNotification({
+                    title: "Suhu Air Tinggi",
+                    message: `Suhu air mencapai ${v.toFixed(1)}°C, melebihi batas maksimal ${sensorLimits.temp_water_max}°C.`,
+                    level: "danger",
+                    sensor_label: "Sensor Suhu Air",
+                });
+            } else if (cat === "Dingin") {
+                await createNotification({
+                    title: "Suhu Air Rendah",
+                    message: `Suhu air turun ke ${v.toFixed(1)}°C, di bawah batas minimal ${sensorLimits.temp_water_min}°C.`,
+                    level: "warning",
+                    sensor_label: "Sensor Suhu Air",
+                });
+            }
+        }
+        lastTempWaterCategory = cat;
+
         updateDiff("temp-water-diff", v - lastTempWater, "°C");
         lastTempWater = v;
     });
 
-    onValue(tdsRef, (snapshot) => {
+
+    onValue(tdsRef, async (snapshot) => {
         const v = snapshot.val();
         updateElement("tds", v, " ppm");
 
         const cat = getTDSCategory(v);
         updateStatus("tds-status", cat);
 
+        if (sensorLimits && cat !== lastTdsCategory) {
+            if (cat === "Tinggi") {
+                await createNotification({
+                    title: "Nutrisi (TDS) Tinggi",
+                    message: `Kadar nutrisi mencapai ${v.toFixed(1)} ppm, melebihi batas maksimal ${sensorLimits.tds_max} ppm.`,
+                    level: "danger",
+                    sensor_label: "Sensor PPM",
+                });
+            } else if (cat === "Rendah") {
+                await createNotification({
+                    title: "Nutrisi (TDS) Rendah",
+                    message: `Kadar nutrisi turun ke ${v.toFixed(1)} ppm, di bawah batas minimal ${sensorLimits.tds_min} ppm.`,
+                    level: "warning",
+                    sensor_label: "Sensor PPM",
+                });
+            }
+        }
+        lastTdsCategory = cat;
+
         updateDiff("tds-diff", v - lastTds, "ppm");
         lastTds = v;
     });
+
 
     // Monitoring status realtime
     setInterval(() => {
@@ -201,8 +289,8 @@ function updateStatus(id, category) {
         category === "Normal"
             ? "bg-green-100 text-green-600"
             : category === "Panas" || category === "Tinggi"
-            ? "bg-red-100 text-red-600"
-            : "bg-blue-100 text-blue-600";
+                ? "bg-red-100 text-red-600"
+                : "bg-blue-100 text-blue-600";
 
     el.className = `px-3 py-1 rounded-full text-sm font-medium ${color}`;
     el.innerText = category;
@@ -245,3 +333,27 @@ function checkDeviceStatus(info) {
         statusEl.innerHTML = `<ion-icon class="text-xl" name="checkmark-circle-outline"></ion-icon><span>Perangkat aktif (update ${waktuUpdate})</span>`;
     }
 }
+
+// Helper: buat notifikasi ke Firestore
+async function createNotification(payload) {
+    if (!deviceId) return;
+
+    const notifCol = collection(
+        firestore,
+        "devices",
+        deviceId,
+        "notifications"
+    );
+
+    try {
+        await addDoc(notifCol, {
+            ...payload,
+            read: false,
+            created_at: serverTimestamp(),
+        });
+        console.log("Notifikasi dibuat:", payload.title);
+    } catch (err) {
+        console.error("Gagal membuat notifikasi:", err);
+    }
+}
+
