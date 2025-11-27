@@ -113,6 +113,7 @@ function startRealtimeListener(deviceId) {
     onValue(temperatureRef, async (snapshot) => {
         const v = snapshot.val();
         updateElement("temperature", v, " °C");
+        console.log("DEBUG TEMP =>", snapshot.exists(), snapshot.val());
 
         const cat = getTempCategory(v);
         updateStatus("temp-status", cat);
