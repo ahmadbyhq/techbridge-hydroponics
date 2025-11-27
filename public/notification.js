@@ -33,12 +33,9 @@ const deleteAllBtn = document.getElementById("delete-all");
 
 console.log("notification.js loaded");
 
-// ================== FIREBASE LISTENER ==================
-
 async function startNotificationListener(user) {
   console.log("startNotificationListener for uid:", user.uid);
 
-  // ambil device_id dari users/{uid}
   const userRef = doc(firestore, "users", user.uid);
   const userSnap = await getDoc(userRef);
 
@@ -58,13 +55,7 @@ async function startNotificationListener(user) {
 
   currentDeviceId = deviceId;
 
-  // listen Firestore: devices/{deviceId}/notifications
-  const notifCol = collection(
-    firestore,
-    "devices",
-    deviceId,
-    "notifications"
-  );
+  const notifCol = collection(firestore, "devices", deviceId, "notifications");
 
   const q = query(notifCol, orderBy("created_at", "desc"));
 
@@ -91,15 +82,13 @@ onAuthStateChanged(auth, (user) => {
 
   if (!user) {
     console.warn("Tidak ada user login");
-    // window.location.href = "login.html";
     return;
   }
 
   startNotificationListener(user);
 });
 
-// ================== RENDER NOTIFIKASI ==================
-
+// Render notifications
 function renderNotifications() {
   if (!notifListEl) return;
 
@@ -135,40 +124,40 @@ function renderNotifications() {
     wrapper.className = `flex items-start gap-3 rounded-xl px-4 py-3 ${bgColor} ${opacity}`;
 
     wrapper.innerHTML = `
-      <div class="mt-0.5">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 ${iconBorder}">
-          <ion-icon name="${
-            level === "danger"
-              ? "alert-circle-outline"
-              : "warning-outline"
-          }" class="text-xl"></ion-icon>
-        </div>
+  <div class="flex items-start gap-3 w-full">
+    
+    <div class="mt-0.5">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 ${iconBorder}">
+        <ion-icon name="${
+          level === "danger" ? "alert-circle-outline" : "warning-outline"
+        }" class="text-xl"></ion-icon>
       </div>
-      <div class="flex-1">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <p class="font-semibold text-sm text-gray-900">${
-              notif.title || "-"
-            }</p>
-            <p class="text-xs text-gray-700 mt-0.5">
-              ${notif.message || ""}
-            </p>
-            <p class="text-[11px] text-gray-500 mt-1">
-              ${formatTimestamp(notif.created_at)}
-            </p>
-          </div>
-          <div class="flex flex-col items-end gap-2">
-            <span class="px-2 py-1 rounded-full text-[11px] font-medium ${sensorBg}">
-              ${notif.sensor_label || "-"}
-            </span>
-            <button data-id="${notif.id}"
-              class="notif-close text-gray-400 hover:text-gray-700 text-xl leading-none">
-              &times;
-            </button>
-          </div>
-        </div>
+    </div>
+
+    <div class="flex-1 flex justify-between items-center">
+      <div class="max-w-[80%]">
+        <p class="font-semibold text-sm text-gray-900">${notif.title || "-"}</p>
+        <p class="text-xs text-gray-700 mt-0.5">${notif.message || ""}</p>
+        <p class="text-[11px] text-gray-500 mt-1">${formatTimestamp(
+          notif.created_at
+        )}</p>
       </div>
-    `;
+
+      <!-- Chip + Trash -->
+      <div class="flex items-center gap-2">
+        
+        <span class="inline-flex items-center justify-center px-2 py-1 rounded-full text-[11px] font-medium ${sensorBg} whitespace-nowrap">
+          ${notif.sensor_label || "-"}
+        </span>
+
+        <button data-id="${notif.id}"
+          class="notif-close flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:bg-red-500 hover:text-white transition-colors duration-150">
+          <ion-icon name="trash-outline" class="text-lg"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+`;
 
     notifListEl.appendChild(wrapper);
   });
@@ -201,8 +190,6 @@ function updateTotalNotif() {
   totalNotifEl.textContent = String(notifications.length);
 }
 
-// ================== AKSI TOMBOL ==================
-
 function attachCloseHandlers() {
   const closeButtons = document.querySelectorAll(".notif-close");
   closeButtons.forEach((btn) => {
@@ -223,7 +210,7 @@ function attachCloseHandlers() {
   });
 }
 
-// tandai semua dibaca
+//Mark all as read
 if (markAllReadBtn) {
   markAllReadBtn.addEventListener("click", async () => {
     if (!currentDeviceId || notifications.length === 0) return;
@@ -247,7 +234,7 @@ if (markAllReadBtn) {
   });
 }
 
-// hapus semua
+// Delete all notifications
 if (deleteAllBtn) {
   deleteAllBtn.addEventListener("click", async () => {
     if (!currentDeviceId || notifications.length === 0) return;

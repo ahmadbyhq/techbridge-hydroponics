@@ -124,14 +124,14 @@ function startRealtimeListener(deviceId) {
                     title: "Suhu Lingkungan Tinggi",
                     message: `Suhu udara mencapai ${v.toFixed(1)}°C, melebihi batas maksimal ${sensorLimits.temp_env_max}°C.`,
                     level: "danger",
-                    sensor_label: "Sensor Suhu Udara",
+                    sensor_label: "Suhu Lingkungan",
                 });
             } else if (cat === "Dingin") {
                 await createNotification({
                     title: "Suhu Lingkungan Rendah",
                     message: `Suhu udara turun ke ${v.toFixed(1)}°C, di bawah batas minimal ${sensorLimits.temp_env_min}°C.`,
                     level: "warning",
-                    sensor_label: "Sensor Suhu Udara",
+                    sensor_label: "Suhu Lingkungan",
                 });
             }
         }
@@ -186,14 +186,14 @@ function startRealtimeListener(deviceId) {
                     title: "Suhu Air Tinggi",
                     message: `Suhu air mencapai ${v.toFixed(1)}°C, melebihi batas maksimal ${sensorLimits.temp_water_max}°C.`,
                     level: "danger",
-                    sensor_label: "Sensor Suhu Air",
+                    sensor_label: "Suhu Air",
                 });
             } else if (cat === "Dingin") {
                 await createNotification({
                     title: "Suhu Air Rendah",
                     message: `Suhu air turun ke ${v.toFixed(1)}°C, di bawah batas minimal ${sensorLimits.temp_water_min}°C.`,
                     level: "warning",
-                    sensor_label: "Sensor Suhu Air",
+                    sensor_label: "Suhu Air",
                 });
             }
         }
@@ -217,14 +217,14 @@ function startRealtimeListener(deviceId) {
                     title: "Nutrisi (TDS) Tinggi",
                     message: `Kadar nutrisi mencapai ${v.toFixed(1)} ppm, melebihi batas maksimal ${sensorLimits.tds_max} ppm.`,
                     level: "danger",
-                    sensor_label: "Sensor PPM",
+                    sensor_label: "PPM",
                 });
             } else if (cat === "Rendah") {
                 await createNotification({
                     title: "Nutrisi (TDS) Rendah",
                     message: `Kadar nutrisi turun ke ${v.toFixed(1)} ppm, di bawah batas minimal ${sensorLimits.tds_min} ppm.`,
                     level: "warning",
-                    sensor_label: "Sensor PPM",
+                    sensor_label: "PPM",
                 });
             }
         }
