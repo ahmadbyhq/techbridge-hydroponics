@@ -2,6 +2,7 @@ import {
     getDatabase,
     ref,
     get,
+    set,
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
 import {
@@ -96,6 +97,7 @@ form.addEventListener("submit", async (e) => {
             },
             { merge: true }
         );
+        await set(ref(rtdb, "device_owners/" + device_id), user.uid);
 
         window.location.href = "index.html";
     } catch (error) {

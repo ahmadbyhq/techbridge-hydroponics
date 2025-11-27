@@ -1,6 +1,10 @@
 {
     "rules": {
-        ".read": "auth!= null && now < 1893456000000", // 2030-01-01
-        ".write": "auth!= null && now < 1893456000000" // 2030-01-01
+        "devices": {
+            "$deviceId": {
+                ".read": "auth != null && root.child('device_owners').child($deviceId).val() === auth.uid",
+                ".write": "auth == null || (auth != null && root.child('device_owners').child($deviceId).val() === auth.uid)"
+            }
+        }
     }
 }
