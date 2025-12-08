@@ -432,6 +432,11 @@ void updateLED() {
 void startSetupPortal() {
   currentState = state_setupPortal;
   WiFi.mode(WIFI_AP);
+  IPAddress local_ip(192, 168, 4, 1);
+  IPAddress gateway(192, 168, 10, 1);
+  IPAddress subnet(255, 255, 255, 0);
+  WiFi.softAPConfig(local_ip, gateway, subnet);
+
   WiFi.softAP(apSSID, apPASS);
   IPAddress IP = WiFi.softAPIP();
   Serial.print("Setup AP IP: ");
