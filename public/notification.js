@@ -2,257 +2,285 @@
 import { app } from "./auth.js";
 
 import {
-  getAuth,
-  onAuthStateChanged,
+    getAuth,
+    onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
 import {
-  getFirestore,
-  doc,
-  getDoc,
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  deleteDoc,
-  writeBatch,
+    getFirestore,
+    doc,
+    getDoc,
+    collection,
+    query,
+    orderBy,
+    onSnapshot,
+    writeBatch,
+    updateDoc,
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
 const auth = getAuth(app);
 const firestore = getFirestore(app);
 
-// state global
 let currentDeviceId = null;
 let notifications = [];
 
-// elemen DOM
 const notifListEl = document.getElementById("notif-list");
 const totalNotifEl = document.getElementById("total-notif");
 const markAllReadBtn = document.getElementById("mark-all-read");
 const deleteAllBtn = document.getElementById("delete-all");
 
-console.log("notification.js loaded");
+// ====================================================================
+// START LISTENER
+// ====================================================================
 
 async function startNotificationListener(user) {
-  console.log("startNotificationListener for uid:", user.uid);
+    const userSnap = await getDoc(doc(firestore, "users", user.uid));
+    if (!userSnap.exists()) return;
 
-  const userRef = doc(firestore, "users", user.uid);
-  const userSnap = await getDoc(userRef);
+    currentDeviceId = userSnap.data().device_id;
+    if (!currentDeviceId) return;
 
-  if (!userSnap.exists()) {
-    console.error("User doc tidak ditemukan di Firestore");
-    return;
-  }
+    const notifCol = collection(
+        firestore,
+        "devices",
+        currentDeviceId,
+        "notifications"
+    );
+    const q = query(notifCol, orderBy("created_at", "desc"));
 
-  const userData = userSnap.data();
-  const deviceId = userData.device_id;
-  console.log("deviceId dari user doc:", deviceId);
+    onSnapshot(q, (snapshot) => {
+        notifications = [];
 
-  if (!deviceId) {
-    console.error("device_id kosong di dokumen user");
-    return;
-  }
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
 
-  currentDeviceId = deviceId;
+            // FILTER — hanya tampilkan yang belum dibaca dan belum dihapus
+            if (data.is_deleted || data.deleted_at) return;
+            // if (data.read && data.read_at) return;
 
-  const notifCol = collection(firestore, "devices", deviceId, "notifications");
-
-  const q = query(notifCol, orderBy("created_at", "desc"));
-
-  onSnapshot(
-    q,
-    (snapshot) => {
-      notifications = [];
-      snapshot.forEach((docSnap) => {
-        notifications.push({
-          id: docSnap.id,
-          ...docSnap.data(),
+            notifications.push({
+                id: docSnap.id,
+                ...data,
+            });
         });
-      });
-      renderNotifications();
-    },
-    (error) => {
-      console.error("onSnapshot notifications error:", error);
-    }
-  );
+
+        notifications.sort((a, b) => {
+            if (!a.read && b.read) return -1;
+            if (a.read && !b.read) return 1; 
+
+            const timeA = new Date(
+                a.created_at?.toDate?.() || a.created_at
+            );
+            const timeB = new Date(
+                b.created_at?.toDate?.() || b.created_at
+            );
+            return timeB - timeA;
+        });
+
+        renderNotifications();
+    });
 }
 
 onAuthStateChanged(auth, (user) => {
-  console.log("onAuthStateChanged, user =", user);
-
-  if (!user) {
-    console.warn("Tidak ada user login");
-    return;
-  }
-
-  startNotificationListener(user);
+    if (user) startNotificationListener(user);
 });
 
-// Render notifications
+// ====================================================================
+// RENDER LIST
+// ====================================================================
+
 function renderNotifications() {
-  if (!notifListEl) return;
+    notifListEl.innerHTML = "";
 
-  notifListEl.innerHTML = "";
+    if (notifications.length === 0) {
+        notifListEl.innerHTML = `
+            <p class="text-md text-gray-500 text-center py-4">Belum ada notifikasi.</p>
+        `;
+        totalNotifEl.textContent = "0";
+        return;
+    }
 
-  if (notifications.length === 0) {
-    notifListEl.innerHTML = `
-      <p class="text-md text-gray-500 text-center py-4">
-        Belum ada notifikasi.
-      </p>
-    `;
-    updateTotalNotif();
-    return;
-  }
+    notifications.forEach((notif) => {
+        const wrapper = document.createElement("div");
 
-  notifications.forEach((notif) => {
-    const wrapper = document.createElement("div");
+        const level = notif.level || "warning";
+        const bgColor =
+            level === "danger"
+                ? "bg-red-50"
+                : level === "info"
+                ? "bg-blue-50"
+                : "bg-amber-50";
 
-    const level = notif.level || "warning";
-    const bgColor = level === "danger" ? "bg-red-50" : "bg-amber-50";
-    const iconBorder =
-      level === "danger"
-        ? "border-red-500 text-red-500"
-        : "border-amber-500 text-amber-500";
+        const iconColor =
+            level === "danger"
+                ? "text-red-500"
+                : level === "info"
+                ? "text-blue-500"
+                : "text-amber-500";
 
-    const sensorBg =
-      level === "danger"
-        ? "bg-red-100 text-red-700"
-        : "bg-amber-100 text-amber-700";
+        const sensorBg =
+            level === "danger"
+                ? "bg-red-100 text-red-700"
+                : level === "info"
+                ? "bg-blue-100 text-blue-700"
+                : "bg-amber-100 text-amber-700";
 
-    const opacity = notif.read ? "opacity-60" : "";
+        const opacity = notif.read ? "opacity-60" : "";
 
-    wrapper.className = `flex items-start gap-3 rounded-xl px-4 py-3 ${bgColor} ${opacity}`;
+        wrapper.className = `flex items-center gap-3 rounded-xl px-4 py-3 ${bgColor} border border-gray-200 ${opacity}`;
 
-    wrapper.innerHTML = `
-  <div class="flex items-start gap-3 w-full">
-    
-    <div class="mt-0.5">
-      <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 ${iconBorder}">
-        <ion-icon name="${
-          level === "danger" ? "alert-circle-outline" : "warning-outline"
-        }" class="text-xl"></ion-icon>
-      </div>
-    </div>
+        wrapper.innerHTML = `
+          <div class="flex items-center">
+              <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 ${iconColor}">
+                  <ion-icon 
+                      name="${
+                          level === "danger"
+                              ? "alert-circle-outline"
+                              : level === "info"
+                              ? "information-circle-outline"
+                              : "warning-outline"
+                      }" 
+                      class="text-lg ${iconColor}">
+                  </ion-icon>
+              </div>
+          </div>
 
-    <div class="flex-1 flex justify-between items-center">
-      <div class="max-w-[80%]">
-        <p class="font-semibold text-sm text-gray-900">${notif.title || "-"}</p>
-        <p class="text-xs text-gray-700 mt-0.5">${notif.message || ""}</p>
-        <p class="text-[11px] text-gray-500 mt-1">${formatTimestamp(
-          notif.created_at
-        )}</p>
-      </div>
 
-      <!-- Chip + Trash -->
-      <div class="flex items-center gap-2">
-        
-        <span class="inline-flex items-center justify-center px-2 py-1 rounded-full text-[11px] font-medium ${sensorBg} whitespace-nowrap">
-          ${notif.sensor_label || "-"}
-        </span>
+        <div class="flex-1 flex justify-between items-center">
+            <div class="max-w-[80%]">
+                <p class="font-semibold text-sm text-gray-900">${
+                    notif.title
+                }</p>
+                <p class="text-xs text-gray-700 mt-0.5">${notif.message}</p>
+                <p class="text-[11px] text-gray-500 mt-1">${formatTimestamp(
+                    notif.created_at
+                )}</p>
+            </div>
 
-        <button data-id="${notif.id}"
-          class="notif-close flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:bg-red-500 hover:text-white transition-colors duration-150">
-          <ion-icon name="trash-outline" class="text-lg"></ion-icon>
-        </button>
-      </div>
-    </div>
-  </div>
-`;
+            <div class="flex items-center gap-2">
 
-    notifListEl.appendChild(wrapper);
-  });
+                <!-- NAMA SENSOR -->
+                <span class="px-2 py-1 rounded-full text-[11px] font-medium ${sensorBg} whitespace-nowrap">
+                    ${notif.sensor_label || "-"}
+                </span>
 
-  updateTotalNotif();
-  attachCloseHandlers();
+                <!-- TANDAI DIBACA -->
+                <button data-id="${notif.id}"
+                    class="notif-read flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:bg-emerald-500 hover:text-white transition">
+                    <ion-icon name="checkmark-done-outline" class="text-lg"></ion-icon>
+                </button>
+
+                <!-- HAPUS -->
+                <button data-id="${notif.id}"
+                    class="notif-delete flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:bg-red-500 hover:text-white transition">
+                    <ion-icon name="trash-outline" class="text-lg"></ion-icon>
+                </button>
+            </div>
+        </div>
+        `;
+
+        notifListEl.appendChild(wrapper);
+    });
+
+    totalNotifEl.textContent = notifications.length;
+
+    attachEvents();
 }
+
+// ====================================================================
+// FORMAT TIMESTAMP
+// ====================================================================
 
 function formatTimestamp(ts) {
-  if (!ts) return "";
+    if (!ts) return "";
 
-  // Firestore Timestamp -> Date
-  if (ts.toDate && typeof ts.toDate === "function") {
-    const date = ts.toDate();
-    return date.toLocaleString("id-ID", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
+    if (ts.toDate) return ts.toDate().toLocaleString("id-ID");
+    if (ts.timestampValue)
+        return new Date(ts.timestampValue).toLocaleString("id-ID");
+    if (typeof ts === "string") return new Date(ts).toLocaleString("id-ID");
+
+    return "";
+}
+
+// ====================================================================
+// EVENT HANDLERS (READ / DELETE)
+// ====================================================================
+
+function attachEvents() {
+    // Tandai dibaca per-item
+    document.querySelectorAll(".notif-read").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            const id = btn.dataset.id;
+            await updateDoc(
+                doc(firestore, "devices", currentDeviceId, "notifications", id),
+                {
+                    read: true,
+                    read_at: new Date(),
+                }
+            );
+        });
     });
-  }
 
-  return "";
-}
-
-function updateTotalNotif() {
-  if (!totalNotifEl) return;
-  totalNotifEl.textContent = String(notifications.length);
-}
-
-function attachCloseHandlers() {
-  const closeButtons = document.querySelectorAll(".notif-close");
-  closeButtons.forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-id");
-      if (!id || !currentDeviceId) return;
-
-      const notifRef = doc(
-        firestore,
-        "devices",
-        currentDeviceId,
-        "notifications",
-        id
-      );
-
-      await deleteDoc(notifRef);
+    // Hapus per-item
+    document.querySelectorAll(".notif-delete").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            const id = btn.dataset.id;
+            await updateDoc(
+                doc(firestore, "devices", currentDeviceId, "notifications", id),
+                {
+                    is_deleted: true,
+                    deleted_at: new Date(),
+                }
+            );
+        });
     });
-  });
 }
 
-//Mark all as read
-if (markAllReadBtn) {
-  markAllReadBtn.addEventListener("click", async () => {
-    if (!currentDeviceId || notifications.length === 0) return;
+// ====================================================================
+// MARK ALL READ
+// ====================================================================
+
+markAllReadBtn.addEventListener("click", async () => {
+    if (notifications.length === 0) return;
 
     const batch = writeBatch(firestore);
+    const now = new Date();
 
     notifications.forEach((n) => {
-      if (!n.read) {
-        const refDoc = doc(
-          firestore,
-          "devices",
-          currentDeviceId,
-          "notifications",
-          n.id
+        const ref = doc(
+            firestore,
+            "devices",
+            currentDeviceId,
+            "notifications",
+            n.id
         );
-        batch.update(refDoc, { read: true });
-      }
+        batch.update(ref, { read: true, read_at: now });
     });
 
     await batch.commit();
-  });
-}
+});
 
-// Delete all notifications
-if (deleteAllBtn) {
-  deleteAllBtn.addEventListener("click", async () => {
-    if (!currentDeviceId || notifications.length === 0) return;
+// ====================================================================
+// DELETE ALL
+// ====================================================================
+
+deleteAllBtn.addEventListener("click", async () => {
+    if (notifications.length === 0) return;
     if (!confirm("Hapus semua notifikasi?")) return;
 
     const batch = writeBatch(firestore);
+    const now = new Date();
 
     notifications.forEach((n) => {
-      const refDoc = doc(
-        firestore,
-        "devices",
-        currentDeviceId,
-        "notifications",
-        n.id
-      );
-      batch.delete(refDoc);
+        const ref = doc(
+            firestore,
+            "devices",
+            currentDeviceId,
+            "notifications",
+            n.id
+        );
+        batch.update(ref, { is_deleted: true, deleted_at: now });
     });
 
     await batch.commit();
-  });
-}
+});
