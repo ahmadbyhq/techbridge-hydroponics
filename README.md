@@ -44,7 +44,7 @@ Berikut adalah galeri gambar dari perangkat keras dan konfigurasi fisik proyek i
 |                              Gambar                               | Deskripsi                                                                                                                                          |
 | :---------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------- |
 |    ![Konfigurasi Internal](public/img/konfigurasi_proyek.jpeg)    | **Konfigurasi Internal Proyek (Wiring)**<br>Menampilkan tata letak ESP32, kabel, dan koneksi internal di dalam box project.                        |
-|           ![Sensor DHT22](public/img/sensor_dht22.jpeg)           | **Sensor Suhu & Kelembapan (DHT22)**<br>Modul sensor DHT22 yang digunakan untuk memantau kondisi lingkungan udara.                                 |
+|           ![Sensor DHT22](public/img/sensor_dht22.jpeg)           | **Sensor Suhu & Kelembapan (DHT22)**<br>Modul sensor DHT22 yang digunakan untuk memantau suhu lingkungan dan kelembapan udara.                     |
 | ![Konektor Sensor Bawah](public/img/connector_sensor_bottom.jpeg) | **Konektor Sensor (Bagian Bawah)**<br>Tampilan konektor aviation plug di bagian bawah untuk menghubungkan sensor eksternal.                        |
 | ![Sensor TDS dan Suhu Air](public/img/tds_tempWater_sensor.jpeg)  | **Sensor TDS & Suhu Air (DS18B20)**<br>Sensor TDS (Warna Putih) untuk mengukur PPM dan sensor suhu air DS18B20 (Warna Hitam) dengan kabel panjang. |
 |     ![Tampilan Depan Box Project](public/img/front_box.jpeg)      | **Tampilan Depan Box Project Proyek**<br>Tampilan bagian depan box project dengan LED indikator status.                                            |
@@ -58,13 +58,13 @@ Berikut adalah preview dari Halaman Website TechBridge Hydroponic:
 
 <div align="center">
 
-|                       Gambar                       | Deskripsi                                                                                                                                |
-| :------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------- |
-|     ![Halaman Login](public/img/web_login.png)     | **Halaman Login**<br>Halaman autentikasi untuk mengakses dashboard monitoring TechBridge.                                                |
-|  ![Halaman Register](public/img/web_register.png)  | **Halaman Register**<br>Formulir untuk mendaftarkan akun pengguna baru.                                                                  |
-|  ![Halaman Setup Awal](public/img/web_setup.png)   | **Halaman Konfigurasi Awal (Setup)**<br>Halaman untuk menghubungkan website dengan perangkat ESP32 menggunakan ID Device.                |
-| ![Halaman Dashboard](public/img/web_dashboard.png) | **Halaman Dashboard Monitoring Utama**<br>Menampilkan parameter sensor _real-time_ (TDS, suhu air, suhulingkungan dan kelembapan udara). |
-| ![Halaman Pengaturan](public/img/web_setting.png)  | **Halaman Pengaturan Threshold**<br>Antarmuka untuk mengonfigurasi batas minimal dan maksimal dari setiap sensor.                        |
-|  ![Halaman Notifikasi](public/img/web_notif.png)   | **Halaman Notifikasi**<br>Log historis dari peringatan yang dipicu saat sensor melebihi batas (sekarang dalam pengembangan).             |
+|                       Gambar                       | Deskripsi                                                                                                                                 |
+| :------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------- |
+|     ![Halaman Login](public/img/web_login.png)     | **Halaman Login**<br>Halaman autentikasi untuk mengakses dashboard monitoring TechBridge.                                                 |
+|  ![Halaman Register](public/img/web_register.png)  | **Halaman Register**<br>Formulir untuk mendaftarkan akun pengguna baru.                                                                   |
+|  ![Halaman Setup Awal](public/img/web_setup.png)   | **Halaman Konfigurasi Awal (Setup)**<br>Halaman untuk menghubungkan website dengan perangkat ESP32 menggunakan ID Device.                 |
+| ![Halaman Dashboard](public/img/web_dashboard.png) | **Halaman Dashboard Monitoring Utama**<br>Menampilkan parameter sensor _real-time_ (TDS, suhu air, suhu lingkungan dan kelembapan udara). |
+| ![Halaman Pengaturan](public/img/web_setting.png)  | **Halaman Pengaturan Threshold**<br>Antarmuka untuk mengonfigurasi batas minimal dan maksimal dari setiap sensor.                         |
+|  ![Halaman Notifikasi](public/img/web_notif.png)   | **Halaman Notifikasi**<br>Log historis dari peringatan yang dipicu saat sensor melebihi batas (sekarang dalam pengembangan).              |
 
 </div>
