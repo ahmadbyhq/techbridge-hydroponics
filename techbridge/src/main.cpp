@@ -16,10 +16,10 @@
 #include <nvs_flash.h>
 #include <time.h>
 
-#define Web_API_KEY "AIzaSyAujGS8fDmyVlIaFgHZd85bOYL8cMWOzI4"
+#define Web_API_KEY "...." //api_key
 #define DATABASE_URL "https://techbridge-hydroponic-default-rtdb.asia-southeast1.firebasedatabase.app/"
-#define USER_EMAIL "byhqcplysh@gmail.com"
-#define USER_PASS "Admin123"
+#define USER_EMAIL "..." // email
+#define USER_PASS "...." //password
 
 // define pin and type sensor
 #define DHTPIN 18

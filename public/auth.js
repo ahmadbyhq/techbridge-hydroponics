@@ -35,14 +35,14 @@ import {
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAujGS8fDmyVlIaFgHZd85bOYL8cMWOzI4",
+    apiKey: "....",
     authDomain: "techbridge-hydroponic.firebaseapp.com",
     databaseURL:
         "https://techbridge-hydroponic-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "techbridge-hydroponic",
     storageBucket: "techbridge-hydroponic.firebasestorage.app",
-    messagingSenderId: "156880371159",
-    appId: "1:156880371159:web:a3ca33bdce209af30fdf92",
+    messagingSenderId: "...",
+    appId: "...",
 };
 
 // Initialize Firebase
@@ -101,9 +101,9 @@ function getLocalTimeString() {
     const d = new Date();
     const pad = (n) => String(n).padStart(2, "0");
     return `${pad(d.getDate())}-${pad(
-        d.getMonth() + 1
+        d.getMonth() + 1,
     )}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(
-        d.getSeconds()
+        d.getSeconds(),
     )}`;
 }
 
@@ -113,7 +113,7 @@ async function registerUser(name, email, password) {
         const userCredential = await createUserWithEmailAndPassword(
             auth,
             email,
-            password
+            password,
         );
         const user = userCredential.user;
 
@@ -139,7 +139,7 @@ async function loginUser(email, password) {
         const userCredential = await signInWithEmailAndPassword(
             auth,
             email,
-            password
+            password,
         );
     } catch (error) {
         console.error("Firebase Auth Error:", error);

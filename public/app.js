@@ -26,14 +26,14 @@ import {
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAujGS8fDmyVlIaFgHZd85bOYL8cMWOzI4",
+    apiKey: "...", //api key
     authDomain: "techbridge-hydroponic.firebaseapp.com",
     databaseURL:
         "https://techbridge-hydroponic-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "techbridge-hydroponic",
     storageBucket: "techbridge-hydroponic.firebasestorage.app",
-    messagingSenderId: "156880371159",
-    appId: "1:156880371159:web:a3ca33bdce209af30fdf92",
+    messagingSenderId: "....",
+    appId: "...",
 };
 
 // Initialize Firebase
@@ -142,7 +142,6 @@ function startRealtimeListener(deviceId) {
         lastTemp = v;
     });
 
-
     onValue(humidityRef, async (snapshot) => {
         const v = snapshot.val();
         updateElement("humidity", v, " %");
@@ -172,7 +171,6 @@ function startRealtimeListener(deviceId) {
         updateDiff("hum-diff", v - lastHum, "%");
         lastHum = v;
     });
-
 
     onValue(tempWaterRef, async (snapshot) => {
         const v = snapshot.val();
@@ -204,7 +202,6 @@ function startRealtimeListener(deviceId) {
         lastTempWater = v;
     });
 
-
     onValue(tdsRef, async (snapshot) => {
         const v = snapshot.val();
         updateElement("tds", v, " ppm");
@@ -234,7 +231,6 @@ function startRealtimeListener(deviceId) {
         updateDiff("tds-diff", v - lastTds, "ppm");
         lastTds = v;
     });
-
 
     // Monitoring status realtime
     setInterval(() => {
@@ -289,8 +285,8 @@ function updateStatus(id, category) {
         category === "Normal"
             ? "bg-green-100 text-green-600"
             : category === "Panas" || category === "Tinggi"
-                ? "bg-red-100 text-red-600"
-                : "bg-blue-100 text-blue-600";
+              ? "bg-red-100 text-red-600"
+              : "bg-blue-100 text-blue-600";
 
     el.className = `px-3 py-1 rounded-full text-sm font-medium ${color}`;
     el.innerText = category;
@@ -342,7 +338,7 @@ async function createNotification(payload) {
         firestore,
         "devices",
         deviceId,
-        "notifications"
+        "notifications",
     );
 
     try {
@@ -356,4 +352,3 @@ async function createNotification(payload) {
         console.error("Gagal membuat notifikasi:", err);
     }
 }
-
